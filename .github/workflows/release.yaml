@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - '*'
+  workflow_dispatch:
 
 env:
   # update with the name of the main binary
@@ -41,13 +42,8 @@ jobs:
         run: |
           trunk build
 
-      - name: Prepare package
-        run: |
-          wasm-bindgen --no-typescript --out-name bevy_game --out-dir wasm --target web target/wasm32-unknown-unknown/release/${{ env.binary }}.wasm
-          cp -r assets wasm/
-
       - name: Package as a zip
-        working-directory: ./wasm
+        working-directory: ./dist
         run: |
           zip --recurse-paths ../${{ env.binary }}.zip .
 
