@@ -1,0 +1,8 @@
+[build]
+# The index HTML file to drive the bundling process.
+target = "index.html"
+dist = "dist"
+public_url = "/"
+
+[watch]
+watch = ["src", "assets"]

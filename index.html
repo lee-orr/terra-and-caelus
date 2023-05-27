@@ -1,14 +1,16 @@
-<!doctype html>
-<html lang="en">
-<script type="module">
-  import init from './bevy_game.js'
-  document.addEventListener('contextmenu', event => event.preventDefault());
-  init()
-</script>
-</head>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Terra and Caelus</title>
 
-<body style="margin: 0px; width: 100vw; height: 100vh;">
-  <script>
+    <link data-trunk rel="scss" href="src/index.scss"/>
+    <base data-trunk-public-url/>
+</head>
+<body>
+    <link data-trunk rel="rust" href="Cargo.toml"/>
+    <script>
     document.body.addEventListener("contextmenu", (e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -78,5 +80,4 @@
     })();
 </script>
 </body>
-
 </html>

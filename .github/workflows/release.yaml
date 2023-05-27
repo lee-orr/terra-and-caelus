@@ -33,13 +33,13 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev alsa
-      - name: install wasm-bindgen-cli
+      - name: install trunk
         run: |
-          cargo install wasm-bindgen-cli
+          cargo install trunk
 
       - name: Build
         run: |
-          cargo build --release --target wasm32-unknown-unknown
+          trunk build
 
       - name: Prepare package
         run: |
