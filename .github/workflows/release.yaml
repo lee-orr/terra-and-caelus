@@ -7,9 +7,9 @@ on:
 
 env:
   # update with the name of the main binary
-  binary: philosophical-zombies
+  binary: terra-and-caelus
   add_binaries_to_github_release: true
-  itch_target: lee-orr/philosophical-zombies
+  itch_target: lee-orr/terra-and-caelus
 
 concurrency:
   group: release
