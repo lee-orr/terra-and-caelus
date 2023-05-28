@@ -11,7 +11,7 @@ env:
   binary: terra-and-caelus
   add_binaries_to_github_release: true
   itch_target: lee-orr/terra-and-caelus
-  release_version: ${{ (github.ref_type == 'tag' && github.ref_name) || github.sha }}
+  release_version: ${{ (github.ref_type == 'tag' && github.ref_name) || format('{0}_{1}', github.ref_name, github.run_number) }}
 
 concurrency:
   group: release
@@ -208,6 +208,9 @@ jobs:
           else
             echo "::set-output name=has-itch-target::yes"
           fi
+      - name: validate ref
+        run: /
+          echo "RELEASE - ${{ env.release_version}}"
 
   upload-to-itch:
     runs-on: ubuntu-latest
