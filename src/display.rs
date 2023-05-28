@@ -13,12 +13,10 @@ impl Plugin for TileDisplayPlugin {
     }
 }
 
-type ChangedTile =  AnyOf<(Changed<Backing>, Changed<Cell>)>;
+type ChangedTile = AnyOf<(Changed<Backing>, Changed<Cell>)>;
 type TileDisplay<'a> = (&'a mut Sprite, &'a Backing, &'a Cell);
 
-fn display_tiles(
-    mut query: Query<TileDisplay, ChangedTile>,
-) {
+fn display_tiles(mut query: Query<TileDisplay, ChangedTile>) {
     for (mut sprite, backing, cell) in query.iter_mut() {
         sprite.color = get_tile_color(backing, cell);
     }
