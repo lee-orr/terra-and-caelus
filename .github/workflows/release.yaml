@@ -11,6 +11,7 @@ env:
   binary: terra-and-caelus
   add_binaries_to_github_release: true
   itch_target: lee-orr/terra-and-caelus
+  release_version: ${{ (github.ref_type == 'tag' && github.ref_name) || github.sha }}
 
 concurrency:
   group: release
@@ -23,13 +24,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: set the release version - commit
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_SHA}"
-      - name: set the release version (tag)
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -64,8 +58,8 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.binary }}.zip
-          asset_name: ${{ env.binary }}-wasm-$RELEASE_VERSION.zip
-          tag: $RELEASE_VERSION
+          asset_name: ${{ env.binary }}-wasm-${{ env.release_version }}.zip
+          tag: ${{ env.release_version }}
           overwrite: true
 
   # Build for Linux
@@ -73,13 +67,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: set the release version - commit
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_SHA}"
-      - name: set the release version (tag)
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -118,8 +105,8 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.binary }}.zip
-          asset_name: ${{ env.binary }}-linux-$RELEASE_VERSION.zip
-          tag: $RELEASE_VERSION
+          asset_name: ${{ env.binary }}-linux-${{ env.release_version }}.zip
+          tag: ${{ env.release_version }}
           overwrite: true
 
   # Build for Windows
@@ -127,13 +114,6 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: set the release version - commit
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_SHA}"
-      - name: set the release version (tag)
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -168,8 +148,8 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.binary }}.zip
-          asset_name: ${{ env.binary }}-windows-$RELEASE_VERSION.zip
-          tag: $RELEASE_VERSION
+          asset_name: ${{ env.binary }}-windows-${{ env.release_version }}.zip
+          tag: ${{ env.release_version }}
           overwrite: true
 
   # Build for macOS
@@ -177,13 +157,6 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-      - name: set the release version - commit
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_SHA}"
-      - name: set the release version (tag)
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
 
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
@@ -219,8 +192,8 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ env.binary }}.dmg
-          asset_name: ${{ env.binary }}-macos-$RELEASE_VERSION.dmg
-          tag: $RELEASE_VERSION
+          asset_name: ${{ env.binary }}-macos-${{ env.release_version }}.dmg
+          tag: ${{ env.release_version }}
           overwrite: true
 
   check-if-upload-to-itch-is-configured:
@@ -259,14 +232,6 @@ jobs:
           chmod +x butler
           ./butler -V
 
-      - name: set the release version - commit
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_SHA}"
-      - name: set the release version (tag)
-        if: startsWith(github.ref, 'refs/tags/v')
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-
       - name: Upload to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_CREDENTIALS }}
@@ -274,7 +239,7 @@ jobs:
           for channel in $(ls builds); do
             ./butler push \
                 --fix-permissions \
-                --userversion="$RELEASE_VERSION" \
+                --userversion="${{ env.release_version }}" \
                 builds/$channel/* \
                 ${{ env.itch_target }}:$channel
           done
