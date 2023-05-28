@@ -4,7 +4,9 @@ use bevy::prelude::*;
 pub enum Backing {
     #[default]
     Empty,
-    Soil,
+    FertileSoil,
+    HarshSoil,
+    DepletedSoil,
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]

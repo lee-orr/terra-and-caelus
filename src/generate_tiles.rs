@@ -44,11 +44,23 @@ fn generate_tiles(mut commands: Commands, mut generator: ResMut<NoisyGenerator>)
     for x in -25..25 {
         for y in -25..25 {
             let backing = generator
-                .select_option(&[Backing::Empty, Backing::Soil])
+                .select_option(&[
+                    Backing::Empty,
+                    Backing::FertileSoil,
+                    Backing::FertileSoil,
+                    Backing::FertileSoil,
+                ])
                 .cloned()
                 .unwrap_or_default();
             let cell = generator
-                .select_option(&[Cell::Empty, Cell::Moss])
+                .select_option(&[
+                    Cell::Empty,
+                    Cell::Empty,
+                    Cell::Empty,
+                    Cell::Empty,
+                    Cell::Empty,
+                    Cell::Moss,
+                ])
                 .cloned()
                 .unwrap_or_default();
             commands.spawn((

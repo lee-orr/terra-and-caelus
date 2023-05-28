@@ -13,7 +13,7 @@ impl Plugin for UpdateTilesPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(
             update_tiles.run_if(
-                in_state(AppState::InGame).and_then(on_timer(Duration::from_secs_f32(1.5))),
+                in_state(AppState::InGame).and_then(on_timer(Duration::from_secs_f32(0.5))),
             ),
         );
     }
@@ -26,53 +26,64 @@ fn update_tiles(query: Query<(Entity, &Backing, &Cell, &Tile)>, mut commands: Co
         .collect::<HashMap<_, _>>();
 
     for (e, b, c, t) in query.iter() {
-        let (nb, nc) = match (b, c) {
-            (Backing::Empty, Cell::Empty) => {
-                let below = Tile(t.0, t.1 - 1);
-                if let Some((_, Cell::Moss)) = tiles.get(&below) {
+        let nb = match b {
+            Backing::Empty => *b,
+            Backing::FertileSoil => {
+                if count_matching_neighbours(t, &tiles, |(b, _)| **b == Backing::DepletedSoil) > 1 {
+                    Backing::HarshSoil
+                } else {
+                    *b
+                }
+            }
+            Backing::HarshSoil => {
+                if count_matching_neighbours(t, &tiles, |(b, _)| **b == Backing::DepletedSoil) > 6 {
+                    Backing::DepletedSoil
+                } else {
+                    *b
+                }
+            }
+            Backing::DepletedSoil => *b,
+        };
+        let (nb, nc) = match (&nb, c) {
+            (Backing::Empty, _) => (*b, *c),
+            (Backing::FertileSoil, Cell::Empty) => {
+                let enough_moss = count_matching_neighbours(t, &tiles, |(_, c)| **c == Cell::Moss);
+                if enough_moss > 1 {
                     (*b, Cell::Moss)
                 } else {
                     (*b, *c)
                 }
             }
-            (Backing::Empty, Cell::Moss) => {
-                let below = Tile(t.0, t.1 - 1);
-                if let Some((_, Cell::Moss)) = tiles.get(&below) {
-                    (*b, Cell::Empty)
+            (Backing::FertileSoil, Cell::Moss) => {
+                let too_much_moss =
+                    count_matching_neighbours(t, &tiles, |(_, c)| **c == Cell::Moss);
+
+                if too_much_moss > 5 {
+                    (Backing::HarshSoil, *c)
                 } else {
                     (*b, *c)
                 }
             }
-            (Backing::Soil, Cell::Empty) => {
-                let enough_moss = [-1, 0, 1]
-                    .iter()
-                    .flat_map(|a| [(a, -1), (a, 0), (a, 1)])
-                    .filter(|(x, y)| **x != 0 || *y != 0)
-                    .map(|(x, y)| Tile(t.0 + *x, t.1 + y))
-                    .filter_map(|t| tiles.get(&t))
-                    .fold(0, |a, (_, c)| if **c == Cell::Moss { a + 1 } else { a });
-
+            (Backing::HarshSoil, Cell::Empty) => {
+                let enough_moss = count_matching_neighbours(t, &tiles, |(_, c)| **c == Cell::Moss);
                 if enough_moss > 2 {
                     (*b, Cell::Moss)
                 } else {
                     (*b, *c)
                 }
             }
-            (Backing::Soil, Cell::Moss) => {
-                let too_much_moss = [-1, 0, 1]
-                    .iter()
-                    .flat_map(|a| [(a, -1), (a, 0), (a, 1)])
-                    .filter(|(x, y)| **x != 0 || *y != 0)
-                    .map(|(x, y)| Tile(t.0 + *x, t.1 + y))
-                    .filter_map(|t| tiles.get(&t))
-                    .fold(0, |a, (_, c)| if **c == Cell::Moss { a + 1 } else { a });
+            (Backing::HarshSoil, Cell::Moss) => {
+                let too_much_moss =
+                    count_matching_neighbours(t, &tiles, |(_, c)| **c == Cell::Moss);
 
-                if too_much_moss > 5 {
-                    (*b, Cell::Empty)
+                if too_much_moss > 3 {
+                    (Backing::DepletedSoil, *c)
                 } else {
                     (*b, *c)
                 }
             }
+            (Backing::DepletedSoil, Cell::Empty) => (*b, *c),
+            (Backing::DepletedSoil, Cell::Moss) => (*b, Cell::Empty),
         };
 
         if nb != *b {
@@ -83,4 +94,27 @@ fn update_tiles(query: Query<(Entity, &Backing, &Cell, &Tile)>, mut commands: Co
             commands.entity(e).insert(nc);
         }
     }
+}
+
+const NEIGHBOURHOOD: [(i8, i8); 8] = [
+    (-1, -1),
+    (0, -1),
+    (1, -1),
+    (-1, 0),
+    (1, 0),
+    (-1, 1),
+    (0, 1),
+    (1, 1),
+];
+
+fn count_matching_neighbours<T>(
+    tile: &Tile,
+    map: &HashMap<Tile, T>,
+    f: impl Fn(&T) -> bool,
+) -> u32 {
+    NEIGHBOURHOOD
+        .iter()
+        .map(|(x, y)| Tile(tile.0 + *x, tile.1 + *y))
+        .filter_map(|t| map.get(&t))
+        .fold(0, |value, tile| if f(tile) { value + 1 } else { value })
 }
