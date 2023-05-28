@@ -1,7 +1,7 @@
+mod display;
+mod generate_tiles;
 mod states;
 mod tile;
-mod generate_tiles;
-mod display;
 
 use bevy::{prelude::*, sprite::MaterialMesh2dBundle};
 use bevy_proto::prelude::ProtoPlugin;
@@ -16,7 +16,6 @@ fn main() {
 
     App::new()
         .add_state::<AppState>()
-
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 fit_canvas_to_parent: true,
@@ -25,18 +24,13 @@ fn main() {
             ..default()
         }))
         .add_plugin(ProtoPlugin::new())
-
         .add_plugin(TileGeneratorPlugin)
         .add_plugin(TileDisplayPlugin)
-
         .insert_resource(ClearColor(Color::rgb(0.1, 0.2, 0.5)))
-
         .add_startup_system(setup)
         .run();
 }
 
-fn setup(
-    mut commands: Commands,
-) {
+fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
 }

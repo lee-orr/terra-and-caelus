@@ -1,17 +1,21 @@
 use bevy::prelude::*;
 
-use crate::{tile::{Cell, Backing}, states::AppState};
+use crate::{
+    states::AppState,
+    tile::{Backing, Cell},
+};
 
 pub struct TileDisplayPlugin;
 
 impl Plugin for TileDisplayPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_system(display_tiles.in_set(OnUpdate(AppState::InGame)));
+        app.add_system(display_tiles.in_set(OnUpdate(AppState::InGame)));
     }
 }
 
-fn display_tiles(mut query: Query<(&mut Sprite, &Backing, &Cell), AnyOf<(Changed<Backing>, Changed<Cell>)>>) {
+fn display_tiles(
+    mut query: Query<(&mut Sprite, &Backing, &Cell), AnyOf<(Changed<Backing>, Changed<Cell>)>>,
+) {
     for (mut sprite, backing, cell) in query.iter_mut() {
         sprite.color = get_tile_color(backing, cell);
     }
