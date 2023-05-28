@@ -4,7 +4,7 @@ use bevy::{prelude::*, time::common_conditions::on_timer, utils::HashMap};
 
 use crate::{
     states::AppState,
-    tile::{Backing, Cell, Tile},
+    tile::{Backing, Cell, Fertalize, Tile},
 };
 
 pub struct UpdateTilesPlugin;
@@ -15,7 +15,23 @@ impl Plugin for UpdateTilesPlugin {
             update_tiles.run_if(
                 in_state(AppState::InGame).and_then(on_timer(Duration::from_secs_f32(0.5))),
             ),
-        );
+        )
+        .add_system(fertilize_tiles.in_set(OnUpdate(AppState::InGame)));
+    }
+}
+
+fn fertilize_tiles(
+    query: Query<(Entity, &Tile, &Backing)>,
+    mut fertilize: EventReader<Fertalize>,
+    mut commands: Commands,
+) {
+    for fertilize in fertilize.iter() {
+        let tile = &fertilize.0;
+        if let Some((entity, _, backing)) = query.iter().find(|(_, t, _)| **t == *tile) {
+            if *backing != Backing::Empty {
+                commands.entity(entity).insert(Backing::FertileSoil);
+            }
+        }
     }
 }
 

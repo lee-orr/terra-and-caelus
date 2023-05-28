@@ -11,6 +11,7 @@ use control::ControlPlugin;
 use display::TileDisplayPlugin;
 use generate_tiles::TileGeneratorPlugin;
 use states::AppState;
+use tile::TilePlugin;
 use update_tiles::UpdateTilesPlugin;
 
 fn main() {
@@ -28,6 +29,7 @@ fn main() {
             ..default()
         }))
         .add_plugin(ProtoPlugin::new())
+        .add_plugin(TilePlugin)
         .add_plugin(TileGeneratorPlugin)
         .add_plugin(TileDisplayPlugin)
         .add_plugin(UpdateTilesPlugin)

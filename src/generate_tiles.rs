@@ -5,7 +5,7 @@ use noisy_bevy::simplex_noise_2d_seeded;
 
 use crate::{
     states::AppState,
-    tile::{Backing, Cell, Tile},
+    tile::{Backing, Cell, Tile, TILE_WORLD_SIZE},
 };
 
 pub struct TileGeneratorPlugin;
@@ -67,10 +67,12 @@ fn generate_tiles(mut commands: Commands, mut generator: ResMut<NoisyGenerator>)
                 SpriteBundle {
                     sprite: Sprite {
                         color: Color::rgb(0.25, 0.25, 0.75),
-                        custom_size: Some(Vec2::new(20., 20.)),
+                        custom_size: Some(Vec2::new(TILE_WORLD_SIZE, TILE_WORLD_SIZE)),
                         ..default()
                     },
-                    transform: Transform::from_translation(Vec3::new(x as f32, y as f32, 0.) * 20.),
+                    transform: Transform::from_translation(
+                        Vec3::new(x as f32, y as f32, 0.) * TILE_WORLD_SIZE,
+                    ),
                     ..default()
                 },
                 backing,
