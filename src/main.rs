@@ -1,3 +1,4 @@
+mod control;
 mod display;
 mod generate_tiles;
 mod states;
@@ -6,6 +7,7 @@ mod update_tiles;
 
 use bevy::prelude::*;
 use bevy_proto::prelude::ProtoPlugin;
+use control::ControlPlugin;
 use display::TileDisplayPlugin;
 use generate_tiles::TileGeneratorPlugin;
 use states::AppState;
@@ -29,6 +31,7 @@ fn main() {
         .add_plugin(TileGeneratorPlugin)
         .add_plugin(TileDisplayPlugin)
         .add_plugin(UpdateTilesPlugin)
+        .add_plugin(ControlPlugin)
         .insert_resource(ClearColor(Color::rgb(0.1, 0.2, 0.5)))
         .add_startup_system(setup)
         .run();
