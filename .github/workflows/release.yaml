@@ -209,8 +209,7 @@ jobs:
             echo "::set-output name=has-itch-target::yes"
           fi
       - name: validate ref
-        run: /
-          echo "RELEASE - ${{ env.release_version}}"
+        run: echo "RELEASE - ${{ env.release_version}}"
 
   upload-to-itch:
     runs-on: ubuntu-latest
