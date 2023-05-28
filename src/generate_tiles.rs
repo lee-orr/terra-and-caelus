@@ -31,7 +31,7 @@ impl NoisyGenerator {
     }
 
     pub fn select_option<'a, T>(&mut self, options: &'a [T]) -> Option<&'a T> {
-        if options.len() == 0 {
+        if options.is_empty() {
             return None;
         }
         let value = self.generate_value();
@@ -41,8 +41,8 @@ impl NoisyGenerator {
 }
 
 fn generate_tiles(mut commands: Commands, mut generator: ResMut<NoisyGenerator>) {
-    for x in -5..5 {
-        for y in -5..5 {
+    for x in -25..25 {
+        for y in -25..25 {
             let backing = generator
                 .select_option(&[Backing::Empty, Backing::Soil])
                 .cloned()
