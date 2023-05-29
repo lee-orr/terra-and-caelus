@@ -58,7 +58,7 @@ fn click(
     let (Ok(window), Ok((camera, camera_transform))) = (window.get_single(), camera_q.get_single()) else { return; };
     let Some(position) = window.cursor_position().and_then(|viewport_position| camera.viewport_to_world(camera_transform, viewport_position)).map(|r| r.origin.truncate()) else { return; };
 
-    let tile_position = (position / TILE_WORLD_SIZE).into();
+    let tile_position = (position / TILE_WORLD_SIZE + 0.5).into();
 
     fertilize.send(Fertalize(tile_position));
 }
