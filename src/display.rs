@@ -24,13 +24,15 @@ fn display_tiles(mut query: Query<TileDisplay, ChangedTile>) {
 
 fn get_tile_color(backing: &Backing, cell: &Cell) -> Color {
     match (backing, cell) {
-        (Backing::Empty, Cell::Empty) => Color::rgba(0., 0., 0., 0.),
-        (Backing::Empty, Cell::Moss) => Color::rgb(0.1, 0.4, 0.2),
+        (Backing::Water, _) => Color::rgba(0., 0., 0., 0.),
         (Backing::FertileSoil, Cell::Empty) => Color::rgb(0.4, 0.8, 0.8),
         (Backing::FertileSoil, Cell::Moss) => Color::rgb(0.2, 0.6, 0.3),
         (Backing::HarshSoil, Cell::Empty) => Color::rgb(0.3, 0.2, 0.05),
         (Backing::HarshSoil, Cell::Moss) => Color::rgb(0.3, 0.4, 0.1),
         (Backing::DepletedSoil, Cell::Empty) => Color::rgb(0.2, 0.1, 0.05),
         (Backing::DepletedSoil, Cell::Moss) => Color::rgb(0.4, 0.5, 0.01),
+        (Backing::FertileSoil, Cell::Flowers) => Color::rgb(0.7, 0.6, 0.1),
+        (Backing::HarshSoil, Cell::Flowers) => Color::rgb(0.6, 0.5, 0.05),
+        (Backing::DepletedSoil, Cell::Flowers) => Color::rgb(0.6, 0.3, 0.04),
     }
 }

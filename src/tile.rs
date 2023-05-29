@@ -3,7 +3,7 @@ use bevy::prelude::*;
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
 pub enum Backing {
     #[default]
-    Empty,
+    Water,
     FertileSoil,
     HarshSoil,
     DepletedSoil,
@@ -14,6 +14,7 @@ pub enum Cell {
     #[default]
     Empty,
     Moss,
+    Flowers,
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
