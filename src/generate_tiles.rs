@@ -63,22 +63,32 @@ fn generate_tiles(mut commands: Commands, mut generator: ResMut<NoisyGenerator>)
                 ])
                 .cloned()
                 .unwrap_or_default();
-            commands.spawn((
-                SpriteBundle {
-                    sprite: Sprite {
-                        color: Color::rgb(0.25, 0.25, 0.75),
-                        custom_size: Some(Vec2::new(TILE_WORLD_SIZE, TILE_WORLD_SIZE)),
+            commands
+                .spawn((
+                    SpriteBundle {
+                        sprite: Sprite {
+                            custom_size: Some(Vec2::new(TILE_WORLD_SIZE, TILE_WORLD_SIZE)),
+                            ..default()
+                        },
+                        transform: Transform::from_translation(
+                            Vec3::new(x as f32, y as f32, 0.) * TILE_WORLD_SIZE,
+                        ),
                         ..default()
                     },
-                    transform: Transform::from_translation(
-                        Vec3::new(x as f32, y as f32, 0.) * TILE_WORLD_SIZE,
-                    ),
-                    ..default()
-                },
-                backing,
-                cell,
-                Tile(x, y),
-            ));
+                    backing,
+                    cell,
+                    Tile(x, y),
+                ))
+                .with_children(|p| {
+                    p.spawn(SpriteBundle {
+                        transform: Transform::from_translation(Vec3::new(0., 0., 1.)),
+                        sprite: Sprite {
+                            custom_size: Some(Vec2::new(TILE_WORLD_SIZE, TILE_WORLD_SIZE)),
+                            ..default()
+                        },
+                        ..default()
+                    });
+                });
         }
     }
 }

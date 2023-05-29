@@ -1,3 +1,4 @@
+mod assets;
 mod control;
 mod display;
 mod generate_tiles;
@@ -5,8 +6,10 @@ mod states;
 mod tile;
 mod update_tiles;
 
+use assets::GameAssets;
 use bevy::prelude::*;
-use bevy_proto::prelude::ProtoPlugin;
+use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
+
 use control::ControlPlugin;
 use display::TileDisplayPlugin;
 use generate_tiles::TileGeneratorPlugin;
@@ -28,7 +31,10 @@ fn main() {
             }),
             ..default()
         }))
-        .add_plugin(ProtoPlugin::new())
+        .add_loading_state(
+            LoadingState::new(AppState::LoadingAssets).continue_to_state(AppState::InGame),
+        )
+        .add_collection_to_loading_state::<_, GameAssets>(AppState::LoadingAssets)
         .add_plugin(TilePlugin)
         .add_plugin(TileGeneratorPlugin)
         .add_plugin(TileDisplayPlugin)
