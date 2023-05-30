@@ -26,6 +26,8 @@ impl From<Vec2> for Tile {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Fertalize(pub Tile);
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PlantFlower(pub Tile);
 
 pub const TILE_WORLD_SIZE: f32 = 40.;
 
@@ -33,6 +35,6 @@ pub struct TilePlugin;
 
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<Fertalize>();
+        app.add_event::<Fertalize>().add_event::<PlantFlower>();
     }
 }

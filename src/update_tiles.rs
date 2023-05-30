@@ -4,7 +4,7 @@ use bevy::{prelude::*, time::common_conditions::on_timer, utils::HashMap};
 
 use crate::{
     states::AppState,
-    tile::{Fertalize, Ground, Plants, Tile},
+    tile::{Fertalize, Ground, PlantFlower, Plants, Tile},
 };
 
 pub struct UpdateTilesPlugin;
@@ -16,7 +16,8 @@ impl Plugin for UpdateTilesPlugin {
                 in_state(AppState::InGame).and_then(on_timer(Duration::from_secs_f32(0.5))),
             ),
         )
-        .add_system(fertilize_tiles.in_set(OnUpdate(AppState::InGame)));
+        .add_system(fertilize_tiles.in_set(OnUpdate(AppState::InGame)))
+        .add_system(plant_flowers_in_tiles.in_set(OnUpdate(AppState::InGame)));
     }
 }
 
@@ -30,6 +31,21 @@ fn fertilize_tiles(
         if let Some((entity, _, backing)) = query.iter().find(|(_, t, _)| **t == *tile) {
             if *backing != Ground::Water {
                 commands.entity(entity).insert(Ground::Ground(8));
+            }
+        }
+    }
+}
+
+fn plant_flowers_in_tiles(
+    query: Query<(Entity, &Tile, &Ground)>,
+    mut plant_flower: EventReader<PlantFlower>,
+    mut commands: Commands,
+) {
+    for plant_flower in plant_flower.iter() {
+        let tile = &plant_flower.0;
+        if let Some((entity, _, backing)) = query.iter().find(|(_, t, _)| **t == *tile) {
+            if *backing != Ground::Water {
+                commands.entity(entity).insert(Plants::Flowers);
             }
         }
     }
@@ -65,7 +81,7 @@ fn update_cell(
         (Ground::Water, _) => (*b, *c),
         (Ground::Ground(fertility), Plants::Empty) => {
             let plant_count = count_matching_neighbours(t, tiles, |(_, c)| **c != Plants::Empty);
-            if plant_count > (8 - *fertility) {
+            if plant_count > 6_u8.saturating_sub(*fertility) {
                 (*b, Plants::Moss)
             } else {
                 (*b, *c)
@@ -73,16 +89,20 @@ fn update_cell(
         }
         (Ground::Ground(fertility), Plants::Moss) => {
             let plant_count = count_matching_neighbours(t, tiles, |(_, c)| **c != Plants::Empty);
+            let flower_count = count_matching_neighbours(t, tiles, |(_, c)| **c == Plants::Flowers);
             if *fertility == 0 {
                 (*b, Plants::Empty)
-            } else if plant_count > (8 - *fertility) {
+            } else if plant_count > 8_u8.saturating_sub(*fertility) && flower_count > 0 {
                 (*b, Plants::Flowers)
             } else {
                 (*b, *c)
             }
         }
         (Ground::Ground(fertility), Plants::Flowers) => {
-            if *fertility < 3 {
+            let flower_count = count_matching_neighbours(t, tiles, |(_, c)| **c == Plants::Flowers);
+            if *fertility == 0 {
+                (*b, Plants::Empty)
+            } else if *fertility < 3 && flower_count < 1 {
                 (*b, Plants::Moss)
             } else {
                 (*b, *c)
@@ -101,12 +121,19 @@ fn update_backing(
         Ground::Ground(u) => {
             let mut u = *u;
             let water_count = count_matching_neighbours(t, tiles, |(b, _)| **b == Ground::Water);
+            let neighbour_fertility = count_matching_neighbours(t, tiles, |(b, _)| {
+                if let Ground::Ground(n) = **b {
+                    n > u
+                } else {
+                    false
+                }
+            });
             let moss_count = count_matching_neighbours(t, tiles, |(_, c)| **c == Plants::Moss);
             let flower_count = count_matching_neighbours(t, tiles, |(_, c)| **c == Plants::Flowers);
 
-            u += water_count;
-            u = u.saturating_sub(moss_count / 2);
-            u = u.saturating_sub(flower_count);
+            u += water_count + neighbour_fertility / 3;
+            u = u.saturating_sub(moss_count);
+            u = u.saturating_sub(flower_count * 2);
 
             u = u.max(water_count).min(8);
             Ground::Ground(u)

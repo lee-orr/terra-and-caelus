@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     states::AppState,
-    tile::{Fertalize, TILE_WORLD_SIZE},
+    tile::{Fertalize, PlantFlower, TILE_WORLD_SIZE},
 };
 
 pub struct ControlPlugin;
@@ -50,8 +50,9 @@ fn click(
     camera_q: Query<(&Camera, &GlobalTransform)>,
     buttons: Res<Input<MouseButton>>,
     mut fertilize: EventWriter<Fertalize>,
+    mut plant_flower: EventWriter<PlantFlower>,
 ) {
-    if !buttons.pressed(MouseButton::Left) {
+    if !buttons.pressed(MouseButton::Left) && !buttons.pressed(MouseButton::Right) {
         return;
     }
 
@@ -60,5 +61,9 @@ fn click(
 
     let tile_position = (position / TILE_WORLD_SIZE + 0.5).into();
 
-    fertilize.send(Fertalize(tile_position));
+    if buttons.pressed(MouseButton::Left) {
+        fertilize.send(Fertalize(tile_position));
+    } else {
+        plant_flower.send(PlantFlower(tile_position));
+    }
 }
