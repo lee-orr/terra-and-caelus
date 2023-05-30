@@ -36,6 +36,7 @@ jobs:
 
       - name: Build
         run: |
+          cargo install wasm-bindgen-cli
           ./build.sh
 
       - name: Package as a zip
