@@ -1,0 +1,53 @@
+{
+  "moss": {
+    "color": {
+      "Rgba": {
+        "red": 1,
+        "green": 1,
+        "blue": 1,
+        "alpha": 1
+      }
+    },
+    "seeded": false,
+    "aggressiveness": 0,
+    "survive_threshold": 1,
+    "spread_threshold": 1,
+    "local_cost": 2,
+    "neighbour_cost": 2,
+    "asset": "moss.png"
+  },
+  "flower": {
+    "color": {
+      "Rgba": {
+        "red": 1,
+        "green": 1,
+        "blue": 1,
+        "alpha": 1
+      }
+    },
+    "seeded": true,
+    "aggressiveness": 1,
+    "survive_threshold": 4,
+    "spread_threshold": 6,
+    "local_cost": 4,
+    "neighbour_cost": 3,
+    "asset": "flower.png"
+  },
+  "other_flower": {
+    "color": {
+      "Rgba": {
+        "red": 0.4,
+        "green": 0.2,
+        "blue": 1,
+        "alpha": 1
+      }
+    },
+    "seeded": true,
+    "aggressiveness": 2,
+    "survive_threshold": 3,
+    "spread_threshold": 4,
+    "local_cost": 5,
+    "neighbour_cost": 3,
+    "asset": "flower.png"
+  }
+}

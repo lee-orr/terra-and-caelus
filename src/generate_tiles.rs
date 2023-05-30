@@ -5,7 +5,7 @@ use noisy_bevy::simplex_noise_2d_seeded;
 
 use crate::{
     states::AppState,
-    tile::{Ground, Plants, Tile, TILE_WORLD_SIZE},
+    tile::{Ground, Plant, PlantDefinitions, Tile, TILE_WORLD_SIZE},
 };
 
 pub struct TileGeneratorPlugin;
@@ -40,7 +40,16 @@ impl NoisyGenerator {
     }
 }
 
-fn generate_tiles(mut commands: Commands, mut generator: ResMut<NoisyGenerator>) {
+fn generate_tiles(
+    mut commands: Commands,
+    mut generator: ResMut<NoisyGenerator>,
+    plants: Res<PlantDefinitions>,
+) {
+    let moss_id = plants.name_to_id.get("moss").expect("Moss isn't loaded");
+    let other_flower = plants
+        .name_to_id
+        .get("other_flower")
+        .expect("Moss isn't loaded");
     for x in -10..10 {
         for y in -10..10 {
             let backing = generator
@@ -65,12 +74,18 @@ fn generate_tiles(mut commands: Commands, mut generator: ResMut<NoisyGenerator>)
                 .unwrap_or_default();
             let cell = generator
                 .select_option(&[
-                    Plants::Empty,
-                    Plants::Empty,
-                    Plants::Empty,
-                    Plants::Empty,
-                    Plants::Empty,
-                    Plants::Moss,
+                    Plant::Empty,
+                    Plant::Empty,
+                    Plant::Empty,
+                    Plant::Empty,
+                    Plant::Empty,
+                    Plant::Empty,
+                    Plant::Empty,
+                    Plant::Empty,
+                    Plant::Plant(*moss_id),
+                    Plant::Plant(*moss_id),
+                    Plant::Plant(*moss_id),
+                    Plant::Plant(*other_flower),
                 ])
                 .cloned()
                 .unwrap_or_default();

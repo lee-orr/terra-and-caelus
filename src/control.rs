@@ -52,7 +52,7 @@ fn click(
     mut fertilize: EventWriter<Fertalize>,
     mut plant_flower: EventWriter<PlantFlower>,
 ) {
-    if !buttons.pressed(MouseButton::Left) && !buttons.pressed(MouseButton::Right) {
+    if !buttons.just_pressed(MouseButton::Left) && !buttons.just_pressed(MouseButton::Right) {
         return;
     }
 
@@ -61,7 +61,7 @@ fn click(
 
     let tile_position = (position / TILE_WORLD_SIZE + 0.5).into();
 
-    if buttons.pressed(MouseButton::Left) {
+    if buttons.just_pressed(MouseButton::Left) {
         fertilize.send(Fertalize(tile_position));
     } else {
         plant_flower.send(PlantFlower(tile_position));

@@ -21,7 +21,7 @@
         {
             "label": "Format",
             "type": "shell",
-            "command": "cargo clippy --fix --allow-dirty & cargo fmt"
+            "command": "cargo clippy --fix --allow-dirty && cargo fmt"
         }
     ]
 }

@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     assets::GameAssets,
     states::AppState,
-    tile::{Ground, Plants},
+    tile::{Ground, Plant, PlantAsset, PlantDefinitions, TILE_WORLD_SIZE},
 };
 
 pub struct TileDisplayPlugin;
@@ -14,20 +14,29 @@ impl Plugin for TileDisplayPlugin {
     }
 }
 
-type ChangedTile = AnyOf<(Changed<Ground>, Changed<Plants>)>;
-type TileDisplay<'a> = (&'a Children, Entity, &'a Ground, &'a Plants);
+type ChangedTile = AnyOf<(Changed<Ground>, Changed<Plant>)>;
+type TileDisplay<'a> = (&'a Children, Entity, &'a Ground, &'a Plant);
 
 fn display_tiles(
     query: Query<TileDisplay, ChangedTile>,
     mut commands: Commands,
     assets: Res<GameAssets>,
+    plants: Res<PlantDefinitions>,
 ) {
     for (child, entity, backing, cell) in query.iter() {
-        let (soil, cell) = get_tile_image(backing, cell, assets.as_ref());
+        let (soil, cell) = get_tile_image(backing, cell, assets.as_ref(), plants.as_ref());
         commands.entity(entity).insert(soil);
         if let Some(child) = child.first() {
             if let Some(cell) = cell {
-                commands.entity(*child).insert((cell, Visibility::Visible));
+                commands.entity(*child).insert((
+                    cell.0,
+                    Sprite {
+                        color: cell.1,
+                        custom_size: Some(TILE_WORLD_SIZE * Vec2::ONE),
+                        ..Default::default()
+                    },
+                    Visibility::Visible,
+                ));
             } else {
                 commands.entity(*child).insert(Visibility::Hidden);
             }
@@ -37,9 +46,10 @@ fn display_tiles(
 
 fn get_tile_image(
     backing: &Ground,
-    cell: &Plants,
+    cell: &Plant,
     assets: &GameAssets,
-) -> (Handle<Image>, Option<Handle<Image>>) {
+    plants: &PlantDefinitions,
+) -> (Handle<Image>, Option<(Handle<Image>, Color)>) {
     (
         match backing {
             Ground::Water => assets.water.clone(),
@@ -48,9 +58,11 @@ fn get_tile_image(
             Ground::Ground(0) => assets.depleted_ground.clone(),
         },
         match cell {
-            Plants::Empty => None,
-            Plants::Moss => Some(assets.moss.clone()),
-            Plants::Flowers => Some(assets.flower.clone()),
+            Plant::Empty => None,
+            Plant::Plant(p) => plants
+                .assets
+                .get(*p)
+                .map(|PlantAsset(asset, c)| (asset.clone(), *c)),
         },
     )
 }

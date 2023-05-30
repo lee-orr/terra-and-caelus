@@ -10,11 +10,12 @@ use assets::GameAssets;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use control::ControlPlugin;
 use display::TileDisplayPlugin;
 use generate_tiles::TileGeneratorPlugin;
 use states::AppState;
-use tile::TilePlugin;
+use tile::{PlantDefinitions, TilePlugin};
 use update_tiles::UpdateTilesPlugin;
 
 fn main() {
@@ -35,6 +36,7 @@ fn main() {
             LoadingState::new(AppState::LoadingAssets).continue_to_state(AppState::InGame),
         )
         .add_collection_to_loading_state::<_, GameAssets>(AppState::LoadingAssets)
+        .init_resource_after_loading_state::<_, PlantDefinitions>(AppState::LoadingAssets)
         .add_plugin(TilePlugin)
         .add_plugin(TileGeneratorPlugin)
         .add_plugin(TileDisplayPlugin)
@@ -42,6 +44,7 @@ fn main() {
         .add_plugin(ControlPlugin)
         .insert_resource(ClearColor(Color::rgb(0.1, 0.2, 0.5)))
         .add_startup_system(setup)
+        .add_plugin(WorldInspectorPlugin::new())
         .run();
 }
 
