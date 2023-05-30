@@ -96,9 +96,7 @@ fn update_cell(
                         let count = count_matching_neighbours(tile, tiles, |(_, p)| {
                             **p == Plant::Plant(*id)
                         });
-                        let result = count > 0;
-                        info!("Seeded Spread Count: {count} - for id {id} - {result}");
-                        result
+                        count > 0
                     } else {
                         true
                     }
@@ -118,9 +116,7 @@ fn update_cell(
                         let count = count_matching_neighbours(tile, tiles, |(_, p)| {
                             **p == Plant::Plant(*i)
                         });
-                        let result = count > 0;
-                        info!("Seeded Spread Count: {count} - for id {id} - {result}");
-                        result
+                        count > 0
                     } else {
                         true
                     }
