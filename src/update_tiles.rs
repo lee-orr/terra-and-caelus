@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{ops::Div, time::Duration};
 
 use bevy::{prelude::*, time::common_conditions::on_timer, utils::HashMap};
 
@@ -162,13 +162,13 @@ fn update_backing(
                                 .map(|p| p.neighbour_cost)
                                 .unwrap_or_default(),
                         );
-                        value + available_nutrients
+                        value.saturating_add(available_nutrients)
                     } else {
-                        value + 16
+                        value.saturating_add(16)
                     }
                 });
 
-            let mut nutrients = neighbour_nutrients / 9;
+            let mut nutrients = neighbour_nutrients.div(9);
 
             nutrients = nutrients.max(0).min(8);
             Ground::Ground(nutrients as u8)
