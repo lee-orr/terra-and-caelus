@@ -98,7 +98,7 @@ impl PartialOrd for PlantDefinition {
 
 #[derive(Debug, Default, Clone, Reflect, PartialEq, FromReflect, TypeUuid, InspectorOptions)]
 #[uuid = "11c21cdc-4ee1-4112-94fe-676868914bc2"]
-pub struct PlantAsset(pub Handle<Image>, pub Color);
+pub struct TileAsset(pub Handle<Image>, pub Color);
 
 #[derive(Debug, Clone, Reflect, Resource, FromReflect, TypeUuid, InspectorOptions)]
 #[reflect(Resource, InspectorOptions)]
@@ -106,7 +106,7 @@ pub struct PlantAsset(pub Handle<Image>, pub Color);
 pub struct PlantDefinitions {
     pub definitions: Vec<PlantDefinition>,
     pub name_to_id: HashMap<String, usize>,
-    pub assets: Vec<PlantAsset>,
+    pub assets: Vec<TileAsset>,
 }
 
 #[derive(Default, Debug, Clone, TypeUuid, Serialize, Deserialize)]

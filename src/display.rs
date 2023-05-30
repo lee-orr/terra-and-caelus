@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     assets::GameAssets,
     states::AppState,
-    tile::{Ground, Plant, PlantAsset, PlantDefinitions, TILE_WORLD_SIZE},
+    tile::{Ground, Plant, PlantDefinitions, TileAsset, TILE_WORLD_SIZE},
 };
 
 pub struct TileDisplayPlugin;
@@ -62,7 +62,7 @@ fn get_tile_image(
             Plant::Plant(p) => plants
                 .assets
                 .get(*p)
-                .map(|PlantAsset(asset, c)| (asset.clone(), *c)),
+                .map(|TileAsset(asset, c)| (asset.clone(), *c)),
         },
     )
 }

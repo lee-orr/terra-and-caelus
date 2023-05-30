@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 
-use crate::tile::{PlantAsset, PlantDefinitions, PlantDefinitionsAsset};
+use crate::tile::{PlantDefinitions, PlantDefinitionsAsset, TileAsset};
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
@@ -58,7 +58,7 @@ impl FromWorld for PlantDefinitions {
                 .collect(),
             assets: p
                 .iter()
-                .map(|(_, _, p)| PlantAsset(server.load(&p.asset), p.color))
+                .map(|(_, _, p)| TileAsset(server.load(&p.asset), p.color))
                 .collect(),
         }
     }
