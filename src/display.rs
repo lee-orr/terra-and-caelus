@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     assets::GameAssets,
     states::AppState,
-    tile::{Backing, Cell},
+    tile::{Ground, Plants},
 };
 
 pub struct TileDisplayPlugin;
@@ -14,8 +14,8 @@ impl Plugin for TileDisplayPlugin {
     }
 }
 
-type ChangedTile = AnyOf<(Changed<Backing>, Changed<Cell>)>;
-type TileDisplay<'a> = (&'a Children, Entity, &'a Backing, &'a Cell);
+type ChangedTile = AnyOf<(Changed<Ground>, Changed<Plants>)>;
+type TileDisplay<'a> = (&'a Children, Entity, &'a Ground, &'a Plants);
 
 fn display_tiles(
     query: Query<TileDisplay, ChangedTile>,
@@ -36,33 +36,21 @@ fn display_tiles(
 }
 
 fn get_tile_image(
-    backing: &Backing,
-    cell: &Cell,
+    backing: &Ground,
+    cell: &Plants,
     assets: &GameAssets,
 ) -> (Handle<Image>, Option<Handle<Image>>) {
     (
         match backing {
-            Backing::Water => assets.water.clone(),
-            Backing::FertileSoil => assets.fertile_ground.clone(),
-            Backing::HarshSoil => assets.harsh_ground.clone(),
-            Backing::DepletedSoil => assets.depleted_ground.clone(),
+            Ground::Water => assets.water.clone(),
+            Ground::Ground(6..) => assets.fertile_ground.clone(),
+            Ground::Ground(1..=5) => assets.harsh_ground.clone(),
+            Ground::Ground(0) => assets.depleted_ground.clone(),
         },
         match cell {
-            Cell::Empty => None,
-            Cell::Moss => Some(assets.moss.clone()),
-            Cell::Flowers => Some(assets.flower.clone()),
+            Plants::Empty => None,
+            Plants::Moss => Some(assets.moss.clone()),
+            Plants::Flowers => Some(assets.flower.clone()),
         },
     )
-    // match (backing, cell) {
-    //     (Backing::Water, _) => Color::rgba(0., 0., 0., 0.),
-    //     (Backing::FertileSoil, Cell::Empty) => Color::rgb(0.4, 0.8, 0.8),
-    //     (Backing::FertileSoil, Cell::Moss) => Color::rgb(0.2, 0.6, 0.3),
-    //     (Backing::HarshSoil, Cell::Empty) => Color::rgb(0.3, 0.2, 0.05),
-    //     (Backing::HarshSoil, Cell::Moss) => Color::rgb(0.3, 0.4, 0.1),
-    //     (Backing::DepletedSoil, Cell::Empty) => Color::rgb(0.2, 0.1, 0.05),
-    //     (Backing::DepletedSoil, Cell::Moss) => Color::rgb(0.4, 0.5, 0.01),
-    //     (Backing::FertileSoil, Cell::Flowers) => Color::rgb(0.7, 0.6, 0.1),
-    //     (Backing::HarshSoil, Cell::Flowers) => Color::rgb(0.6, 0.5, 0.05),
-    //     (Backing::DepletedSoil, Cell::Flowers) => Color::rgb(0.6, 0.3, 0.04),
-    // }
 }

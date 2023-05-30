@@ -4,7 +4,7 @@ use bevy::{prelude::*, time::common_conditions::on_timer, utils::HashMap};
 
 use crate::{
     states::AppState,
-    tile::{Backing, Cell, Fertalize, Tile},
+    tile::{Fertalize, Ground, Plants, Tile},
 };
 
 pub struct UpdateTilesPlugin;
@@ -21,21 +21,21 @@ impl Plugin for UpdateTilesPlugin {
 }
 
 fn fertilize_tiles(
-    query: Query<(Entity, &Tile, &Backing)>,
+    query: Query<(Entity, &Tile, &Ground)>,
     mut fertilize: EventReader<Fertalize>,
     mut commands: Commands,
 ) {
     for fertilize in fertilize.iter() {
         let tile = &fertilize.0;
         if let Some((entity, _, backing)) = query.iter().find(|(_, t, _)| **t == *tile) {
-            if *backing != Backing::Water {
-                commands.entity(entity).insert(Backing::FertileSoil);
+            if *backing != Ground::Water {
+                commands.entity(entity).insert(Ground::Ground(8));
             }
         }
     }
 }
 
-fn update_tiles(query: Query<(Entity, &Backing, &Cell, &Tile)>, mut commands: Commands) {
+fn update_tiles(query: Query<(Entity, &Ground, &Plants, &Tile)>, mut commands: Commands) {
     let tiles = query
         .iter()
         .map(|(_, b, c, t)| (*t, (b, c)))
@@ -56,95 +56,61 @@ fn update_tiles(query: Query<(Entity, &Backing, &Cell, &Tile)>, mut commands: Co
 }
 
 fn update_cell(
-    b: &Backing,
-    c: &Cell,
+    b: &Ground,
+    c: &Plants,
     t: &Tile,
-    tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Backing, &Cell)>,
-) -> (Backing, Cell) {
+    tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Ground, &Plants)>,
+) -> (Ground, Plants) {
     match (b, c) {
-        (Backing::Water, _) => (*b, *c),
-        (Backing::FertileSoil, Cell::Empty) => {
-            let enough_moss = count_matching_neighbours(t, tiles, |(_, c)| **c != Cell::Empty);
-            if enough_moss > 1 {
-                (*b, Cell::Moss)
+        (Ground::Water, _) => (*b, *c),
+        (Ground::Ground(fertility), Plants::Empty) => {
+            let plant_count = count_matching_neighbours(t, tiles, |(_, c)| **c != Plants::Empty);
+            if plant_count > (8 - *fertility) {
+                (*b, Plants::Moss)
             } else {
                 (*b, *c)
             }
         }
-        (Backing::FertileSoil, Cell::Moss) => {
-            let too_much_moss = count_matching_neighbours(t, tiles, |(_, c)| **c != Cell::Empty);
-
-            if too_much_moss > 5 {
-                (Backing::HarshSoil, *c)
-            } else if too_much_moss > 3 {
-                (*b, Cell::Flowers)
+        (Ground::Ground(fertility), Plants::Moss) => {
+            let plant_count = count_matching_neighbours(t, tiles, |(_, c)| **c != Plants::Empty);
+            if *fertility == 0 {
+                (*b, Plants::Empty)
+            } else if plant_count > (8 - *fertility) {
+                (*b, Plants::Flowers)
             } else {
                 (*b, *c)
             }
         }
-        (Backing::HarshSoil, Cell::Empty) => {
-            let enough_moss = count_matching_neighbours(t, tiles, |(_, c)| **c != Cell::Empty);
-            if enough_moss > 2 {
-                (*b, Cell::Moss)
+        (Ground::Ground(fertility), Plants::Flowers) => {
+            if *fertility < 3 {
+                (*b, Plants::Moss)
             } else {
                 (*b, *c)
             }
         }
-        (Backing::HarshSoil, Cell::Moss) => {
-            let too_much_moss = count_matching_neighbours(t, tiles, |(_, c)| **c != Cell::Empty);
-
-            if too_much_moss > 3 {
-                (Backing::DepletedSoil, *c)
-            } else {
-                (*b, *c)
-            }
-        }
-        (Backing::DepletedSoil, Cell::Empty) => (*b, *c),
-        (Backing::DepletedSoil, Cell::Moss) => (*b, Cell::Empty),
-        (Backing::FertileSoil, Cell::Flowers) => {
-            let too_much_moss = count_matching_neighbours(t, tiles, |(_, c)| **c != Cell::Empty);
-
-            if too_much_moss > 4 {
-                (Backing::HarshSoil, *c)
-            } else {
-                (*b, *c)
-            }
-        }
-        (Backing::HarshSoil, Cell::Flowers) => {
-            let too_much_moss = count_matching_neighbours(t, tiles, |(_, c)| **c != Cell::Empty);
-
-            if too_much_moss > 2 {
-                (Backing::DepletedSoil, *c)
-            } else {
-                (*b, *c)
-            }
-        }
-        (Backing::DepletedSoil, Cell::Flowers) => (*b, Cell::Empty),
     }
 }
 
 fn update_backing(
-    b: &Backing,
+    b: &Ground,
     t: &Tile,
-    tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Backing, &Cell)>,
-) -> Backing {
+    tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Ground, &Plants)>,
+) -> Ground {
     match b {
-        Backing::Water => *b,
-        Backing::FertileSoil => {
-            if count_matching_neighbours(t, tiles, |(b, _)| **b == Backing::DepletedSoil) > 1 {
-                Backing::HarshSoil
-            } else {
-                *b
-            }
+        Ground::Water => *b,
+        Ground::Ground(u) => {
+            let mut u = *u;
+            let water_count = count_matching_neighbours(t, tiles, |(b, _)| **b == Ground::Water);
+            let moss_count = count_matching_neighbours(t, tiles, |(_, c)| **c == Plants::Moss);
+            let flower_count = count_matching_neighbours(t, tiles, |(_, c)| **c == Plants::Flowers);
+
+            u += water_count;
+            u = u.saturating_sub(moss_count / 2);
+            u = u.saturating_sub(flower_count);
+
+            u = u.max(water_count).min(8);
+            Ground::Ground(u)
         }
-        Backing::HarshSoil => {
-            if count_matching_neighbours(t, tiles, |(b, _)| **b == Backing::DepletedSoil) > 5 {
-                Backing::DepletedSoil
-            } else {
-                *b
-            }
-        }
-        Backing::DepletedSoil => *b,
     }
 }
 
@@ -159,11 +125,7 @@ const NEIGHBOURHOOD: [(i8, i8); 8] = [
     (1, 1),
 ];
 
-fn count_matching_neighbours<T>(
-    tile: &Tile,
-    map: &HashMap<Tile, T>,
-    f: impl Fn(&T) -> bool,
-) -> u32 {
+fn count_matching_neighbours<T>(tile: &Tile, map: &HashMap<Tile, T>, f: impl Fn(&T) -> bool) -> u8 {
     NEIGHBOURHOOD
         .iter()
         .map(|(x, y)| Tile(tile.0 + *x, tile.1 + *y))

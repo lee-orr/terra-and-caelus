@@ -5,7 +5,7 @@ use noisy_bevy::simplex_noise_2d_seeded;
 
 use crate::{
     states::AppState,
-    tile::{Backing, Cell, Tile, TILE_WORLD_SIZE},
+    tile::{Ground, Plants, Tile, TILE_WORLD_SIZE},
 };
 
 pub struct TileGeneratorPlugin;
@@ -41,25 +41,36 @@ impl NoisyGenerator {
 }
 
 fn generate_tiles(mut commands: Commands, mut generator: ResMut<NoisyGenerator>) {
-    for x in -25..25 {
-        for y in -25..25 {
+    for x in -10..10 {
+        for y in -10..10 {
             let backing = generator
                 .select_option(&[
-                    Backing::Water,
-                    Backing::FertileSoil,
-                    Backing::FertileSoil,
-                    Backing::FertileSoil,
+                    Ground::Water,
+                    Ground::Ground(8),
+                    Ground::Ground(5),
+                    Ground::Ground(5),
+                    Ground::Ground(5),
+                    Ground::Ground(5),
+                    Ground::Ground(5),
+                    Ground::Ground(0),
+                    Ground::Ground(0),
+                    Ground::Ground(0),
+                    Ground::Ground(0),
+                    Ground::Ground(0),
+                    Ground::Ground(0),
+                    Ground::Ground(0),
+                    Ground::Ground(0),
                 ])
                 .cloned()
                 .unwrap_or_default();
             let cell = generator
                 .select_option(&[
-                    Cell::Empty,
-                    Cell::Empty,
-                    Cell::Empty,
-                    Cell::Empty,
-                    Cell::Empty,
-                    Cell::Moss,
+                    Plants::Empty,
+                    Plants::Empty,
+                    Plants::Empty,
+                    Plants::Empty,
+                    Plants::Empty,
+                    Plants::Moss,
                 ])
                 .cloned()
                 .unwrap_or_default();

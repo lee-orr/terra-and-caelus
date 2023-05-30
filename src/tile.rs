@@ -1,16 +1,14 @@
 use bevy::prelude::*;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
-pub enum Backing {
+pub enum Ground {
     #[default]
     Water,
-    FertileSoil,
-    HarshSoil,
-    DepletedSoil,
+    Ground(u8),
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
-pub enum Cell {
+pub enum Plants {
     #[default]
     Empty,
     Moss,
@@ -29,7 +27,7 @@ impl From<Vec2> for Tile {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Fertalize(pub Tile);
 
-pub const TILE_WORLD_SIZE: f32 = 20.;
+pub const TILE_WORLD_SIZE: f32 = 40.;
 
 pub struct TilePlugin;
 
