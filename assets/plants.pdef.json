@@ -10,10 +10,10 @@
     },
     "seeded": false,
     "aggressiveness": 0,
-    "survive_threshold": 1,
-    "spread_threshold": 1,
-    "local_cost": 2,
-    "neighbour_cost": 2,
+    "survive_threshold": 3,
+    "spread_threshold": 4,
+    "local_cost": 3,
+    "neighbour_cost": -1,
     "asset": "moss.png"
   },
   "flower": {
@@ -47,7 +47,7 @@
     "survive_threshold": 3,
     "spread_threshold": 4,
     "local_cost": 5,
-    "neighbour_cost": 3,
+    "neighbour_cost": 5,
     "asset": "flower.png"
   }
 }

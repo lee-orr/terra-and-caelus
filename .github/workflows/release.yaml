@@ -33,13 +33,10 @@ jobs:
       - name: install dependencies
         run: |
           sudo apt-get update; sudo apt-get install pkg-config libx11-dev libasound2-dev libudev-dev libxcb-render0-dev libxcb-shape0-dev libxcb-xfixes0-dev alsa
-      - name: install trunk
-        run: |
-          cargo install trunk --locked
 
       - name: Build
         run: |
-          trunk build
+          ./build.sh
 
       - name: Package as a zip
         working-directory: ./dist

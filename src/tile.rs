@@ -65,8 +65,8 @@ pub struct PlantDefinition {
     pub aggressiveness: u8,
     pub survive_threshold: u8,
     pub spread_threshold: u8,
-    pub local_cost: u8,
-    pub neighbour_cost: u8,
+    pub local_cost: i8,
+    pub neighbour_cost: i8,
     pub asset: String,
 }
 

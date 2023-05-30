@@ -3,7 +3,7 @@
 {
 	"name": "Terra and Caelus",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "image": "rust:bullseye",
+	"image": "rust:bullseye",
 	"features": {
 		"ghcr.io/devcontainers/features/rust:1": {},
 		"ghcr.io/devcontainers/features/git:1": {},
@@ -12,7 +12,7 @@
 		"ghcr.io/lee-orr/rusty-dev-containers/bacon:latest": {},
 		"ghcr.io/lee-orr/rusty-dev-containers/mprocs:latest": {},
 		"ghcr.io/lee-orr/rusty-dev-containers/wasm-bindgen-cli:latest": {},
-		"ghcr.io/trunk-io/devcontainer-feature/trunk:latest": {},
+		"ghcr.io/lee-orr/rusty-dev-containers/wasm-server-runner:latest": {},
 		"ghcr.io/lee-orr/rusty-dev-containers/wasm32-unknown-unknown:latest": {},
 		"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
 			"packages": "g++,pkg-config,libx11-dev,libasound2-dev,libudev-dev"
@@ -27,7 +27,8 @@
 				"JScearcy.rust-doc-viewer",
 				"rust-lang.rust-analyzer",
 				"github.vscode-github-actions",
-				"spencerwmiles.vscode-task-buttons"
+				"spencerwmiles.vscode-task-buttons",
+				"ritwickdey.LiveServer"
 			]
 		}
 	}

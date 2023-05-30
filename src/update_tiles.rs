@@ -146,6 +146,7 @@ fn update_backing(
     match ground {
         Ground::Water => Ground::Water,
         Ground::Ground(nutrients) => {
+            let nutrients = *nutrients as i8;
             let available_nutrients = nutrients.saturating_sub(
                 plant
                     .definition(plants)
@@ -155,6 +156,7 @@ fn update_backing(
             let neighbour_nutrients =
                 process_neighbours(tile, tiles, available_nutrients, |value, (g, p)| {
                     if let Ground::Ground(nutrients) = **g {
+                        let nutrients = nutrients as i8;
                         let available_nutrients = nutrients.saturating_sub(
                             p.definition(plants)
                                 .map(|p| p.neighbour_cost)
@@ -169,7 +171,7 @@ fn update_backing(
             let mut nutrients = neighbour_nutrients / 9;
 
             nutrients = nutrients.max(0).min(8);
-            Ground::Ground(nutrients)
+            Ground::Ground(nutrients as u8)
         }
     }
 }
