@@ -16,7 +16,7 @@
         {
             "label": "Run Wasm",
             "type": "shell",
-            "command": "trunk serve"
+            "command": "cargo watch -d 2 -s 'cargo run --target wasm32-unknown-unknown'"
         },
         {
             "label": "Format",
