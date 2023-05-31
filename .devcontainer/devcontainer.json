@@ -3,7 +3,7 @@
 {
 	"name": "Terra and Caelus",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "rust:bullseye",
+	"image": "ubuntu:latest",
 	"features": {
 		"ghcr.io/devcontainers/features/rust:1": {},
 		"ghcr.io/devcontainers/features/git:1": {},
