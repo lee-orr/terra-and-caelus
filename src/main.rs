@@ -10,7 +10,7 @@ use assets::GameAssets;
 use bevy::{input::common_conditions::input_toggle_active, prelude::*};
 use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_inspector_egui::quick::ResourceInspectorPlugin;
 use control::ControlPlugin;
 use display::TileDisplayPlugin;
 use generate_tiles::TileGeneratorPlugin;
@@ -45,7 +45,8 @@ fn main() {
         .insert_resource(ClearColor(Color::rgb(0.1, 0.2, 0.5)))
         .add_startup_system(setup)
         .add_plugin(
-            WorldInspectorPlugin::default().run_if(input_toggle_active(false, KeyCode::Escape)),
+            ResourceInspectorPlugin::<PlantDefinitions>::default()
+                .run_if(input_toggle_active(false, KeyCode::Escape)),
         )
         .run();
 }

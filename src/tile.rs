@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 pub enum Ground {
     #[default]
     Water,
-    Ground(u8),
+    Ground(i16),
 }
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
@@ -63,10 +63,10 @@ pub struct PlantDefinition {
     pub color: Color,
     pub seeded: bool,
     pub aggressiveness: u8,
-    pub survive_threshold: u8,
-    pub spread_threshold: u8,
-    pub local_cost: i8,
-    pub neighbour_cost: i8,
+    pub survive_threshold: i16,
+    pub spread_threshold: i16,
+    pub local_cost: i16,
+    pub neighbour_cost: i16,
     pub asset: String,
 }
 

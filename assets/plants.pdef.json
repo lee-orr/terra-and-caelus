@@ -8,7 +8,7 @@
         "alpha": 1
       }
     },
-    "seeded": false,
+    "seeded": true,
     "aggressiveness": 0,
     "survive_threshold": 3,
     "spread_threshold": 4,
@@ -44,10 +44,10 @@
     },
     "seeded": true,
     "aggressiveness": 2,
-    "survive_threshold": 3,
+    "survive_threshold": 5,
     "spread_threshold": 4,
-    "local_cost": 5,
-    "neighbour_cost": 5,
+    "local_cost": 8,
+    "neighbour_cost": 12,
     "asset": "flower.png"
   }
 }
