@@ -1,6 +1,9 @@
 use bevy::{input::common_conditions::input_just_pressed, prelude::*};
 use fdg_sim::{ForceGraph, ForceGraphHelper, Node, Simulation, SimulationParameters};
-use petgraph::{stable_graph::NodeIndex, visit::IntoNodeReferences};
+use petgraph::{
+    stable_graph::NodeIndex,
+    visit::{EdgeRef, IntoEdgeReferences, IntoNodeReferences},
+};
 
 use crate::{
     states::AppState,
@@ -112,11 +115,7 @@ fn generate_tiles(
 
     let graph = generate_graph(&ForceGraph::default(), generator.as_mut(), plants.as_ref());
 
-    let mut simulation = Simulation::from_graph(graph, SimulationParameters::default());
-
-    for _i in 0..50 {
-        simulation.update(0.3);
-    }
+    let simulation = layout_graph(graph);
 
     commands
         .spawn((SpatialBundle::default(), Level))
@@ -127,4 +126,36 @@ fn generate_tiles(
         });
 
     commands.insert_resource(CurrentGraph(simulation));
+}
+
+const MIN_DIST: f32 = TILE_WORLD_SIZE * 1.1;
+
+fn layout_graph(
+    graph: petgraph::stable_graph::StableGraph<Node<(Ground, Plant)>, (), petgraph::Undirected>,
+) -> Simulation<(Ground, Plant), ()> {
+    let mut simulation = Simulation::from_graph(graph, SimulationParameters::default());
+
+    for _i in 0..50 {
+        simulation.update(0.3);
+    }
+
+    let graph = simulation.get_graph_mut();
+
+    let min_edge_len = graph
+        .edge_references()
+        .filter_map(|e| {
+            let a = graph.node_weight(e.source())?;
+            let b = graph.node_weight(e.target())?;
+            Some(a.location.distance(b.location))
+        })
+        .fold(f32::MAX, |a, b| a.abs().min(b.abs()));
+
+    if min_edge_len < MIN_DIST && min_edge_len > 0. {
+        let factor = MIN_DIST / min_edge_len;
+        for n in graph.node_weights_mut() {
+            n.location = factor * n.location;
+        }
+    }
+
+    simulation
 }
