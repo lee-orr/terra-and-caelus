@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
     states::AppState,
-    tile::{Fertalize, PlantFlower, TILE_WORLD_SIZE},
+    tile::{Fertalize, PlantFlower},
 };
 
 pub struct ControlPlugin;
@@ -59,11 +59,9 @@ fn click(
     let (Ok(window), Ok((camera, camera_transform))) = (window.get_single(), camera_q.get_single()) else { return; };
     let Some(position) = window.cursor_position().and_then(|viewport_position| camera.viewport_to_world(camera_transform, viewport_position)).map(|r| r.origin.truncate()) else { return; };
 
-    let tile_position = (position / TILE_WORLD_SIZE + 0.5).into();
-
     if buttons.just_pressed(MouseButton::Left) {
-        fertilize.send(Fertalize(tile_position));
+        fertilize.send(Fertalize(position));
     } else {
-        plant_flower.send(PlantFlower(tile_position));
+        plant_flower.send(PlantFlower(position));
     }
 }

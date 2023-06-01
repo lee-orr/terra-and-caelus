@@ -5,7 +5,11 @@ use bevy::{
 };
 use bevy_common_assets::json::JsonAssetPlugin;
 use bevy_inspector_egui::{prelude::ReflectInspectorOptions, InspectorOptions};
+use fdg_sim::{ForceGraph, Simulation};
+use petgraph::stable_graph::NodeIndex;
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
+use std::hash::Hash;
 
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
 pub enum Ground {
@@ -30,19 +34,37 @@ impl Plant {
     }
 }
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
-pub struct Tile(pub i8, pub i8);
+pub type CellData = (Ground, Plant);
+pub type BoundryData = ();
+pub type Graph = ForceGraph<CellData, BoundryData>;
 
-impl From<Vec2> for Tile {
-    fn from(value: Vec2) -> Self {
-        Tile(value.x.floor() as i8, value.y.floor() as i8)
+#[derive(Component, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct CellId(pub NodeIndex);
+
+#[derive(Resource)]
+pub struct CurrentGraph(pub Simulation<CellData, BoundryData>);
+
+impl Debug for CurrentGraph {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("CurrentGraph")
+            .field(&self.0.get_graph())
+            .finish()
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Fertalize(pub Tile);
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct PlantFlower(pub Tile);
+impl CurrentGraph {
+    pub fn find(&self, p: Vec2) -> Option<NodeIndex> {
+        info!("looking for node at {p:?}");
+        let result = self.0.find((p.x, p.y, 0.).into(), TILE_WORLD_SIZE);
+        info!("found {result:?}");
+        result
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Fertalize(pub Vec2);
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PlantFlower(pub Vec2);
 
 pub const TILE_WORLD_SIZE: f32 = 40.;
 

@@ -7,7 +7,6 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.10" }
-bevy_proto = "0.10"
 iyes_progress = "0.8"
 bevy_ecs_markers = "1"
 spew = "0.2"
@@ -21,3 +20,6 @@ noisy_bevy = "0.3"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 bevy-inspector-egui = "*"
+bevy_vector_shapes = "0.4.5"
+fdg-sim = "0.9"
+petgraph = "0.6"
