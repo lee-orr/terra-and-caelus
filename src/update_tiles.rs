@@ -106,7 +106,8 @@ fn update_cell(cell: &CellId, graph: &Graph, plants: &[PlantDefinition]) -> Opti
                 if p.spread_threshold <= nutrients {
                     if p.seeded {
                         let count =
-                            count_matching_neighbours(cell, graph, |(_, p)| p == Plant::Plant(*id));
+                            count_matching_neighbours(cell, graph, |(_, p)| p == Plant::Plant(*id))
+                                .val();
                         count > 0
                     } else {
                         true
@@ -125,7 +126,8 @@ fn update_cell(cell: &CellId, graph: &Graph, plants: &[PlantDefinition]) -> Opti
                 if *i != id && p.spread_threshold <= nutrients {
                     if p.seeded {
                         let count =
-                            count_matching_neighbours(cell, graph, |(_, p)| p == Plant::Plant(*i));
+                            count_matching_neighbours(cell, graph, |(_, p)| p == Plant::Plant(*i))
+                                .val();
                         count > 0
                     } else {
                         true
@@ -155,21 +157,23 @@ fn update_backing(cell: &CellId, graph: &Graph, plants: &[PlantDefinition]) -> O
                     .map(|p| p.local_cost)
                     .unwrap_or_default(),
             );
-            let neighbour_nutrients =
-                process_neighbours(cell, graph, available_nutrients, |value, (g, p)| {
-                    if let Ground::Ground(nutrients) = g {
-                        let available_nutrients = nutrients.saturating_sub(
-                            p.definition(plants)
-                                .map(|p| p.neighbour_cost)
-                                .unwrap_or_default(),
-                        );
-                        value.saturating_add(available_nutrients)
-                    } else {
-                        value.saturating_add(16)
-                    }
-                });
+            let NeighbourProcess {
+                num_neighbours,
+                value: neighbour_nutrients,
+            } = process_neighbours(cell, graph, available_nutrients, |value, (g, p)| {
+                if let Ground::Ground(nutrients) = g {
+                    let available_nutrients = nutrients.saturating_sub(
+                        p.definition(plants)
+                            .map(|p| p.neighbour_cost)
+                            .unwrap_or_default(),
+                    );
+                    value.saturating_add(available_nutrients)
+                } else {
+                    value.saturating_add(16)
+                }
+            });
 
-            let mut nutrients = neighbour_nutrients.div(9);
+            let mut nutrients = neighbour_nutrients.div((num_neighbours + 1) as i16);
 
             nutrients = nutrients.max(0).min(8);
             Some(Ground::Ground(nutrients))
@@ -177,19 +181,28 @@ fn update_backing(cell: &CellId, graph: &Graph, plants: &[PlantDefinition]) -> O
     }
 }
 
-fn count_matching_neighbours(cell: &CellId, graph: &Graph, f: impl Fn(CellData) -> bool) -> u8 {
-    graph
-        .edges(cell.0)
-        .filter_map(|edge| {
-            let id = if edge.target() == cell.0 {
-                edge.source()
-            } else {
-                edge.target()
-            };
-            graph.node_weight(id)
-        })
-        .map(|n| n.data)
-        .fold(0, |value, tile| if f(tile) { value + 1 } else { value })
+fn count_matching_neighbours(
+    cell: &CellId,
+    graph: &Graph,
+    f: impl Fn(CellData) -> bool,
+) -> NeighbourProcess<u8> {
+    process_neighbours(
+        cell,
+        graph,
+        0,
+        |value, tile| if f(tile) { value + 1 } else { value },
+    )
+}
+
+struct NeighbourProcess<R> {
+    pub num_neighbours: usize,
+    pub value: R,
+}
+
+impl<R> NeighbourProcess<R> {
+    pub fn val(self) -> R {
+        self.value
+    }
 }
 
 fn process_neighbours<R>(
@@ -197,7 +210,7 @@ fn process_neighbours<R>(
     graph: &Graph,
     initial: R,
     f: impl Fn(R, CellData) -> R,
-) -> R {
+) -> NeighbourProcess<R> {
     graph
         .edges(cell.0)
         .filter_map(|edge| {
@@ -209,5 +222,20 @@ fn process_neighbours<R>(
             graph.node_weight(id)
         })
         .map(|n| n.data)
-        .fold(initial, f)
+        .fold(
+            NeighbourProcess {
+                num_neighbours: 0,
+                value: initial,
+            },
+            |NeighbourProcess {
+                 num_neighbours,
+                 value,
+             },
+             v| {
+                NeighbourProcess {
+                    num_neighbours: num_neighbours + 1,
+                    value: f(value, v),
+                }
+            },
+        )
 }
