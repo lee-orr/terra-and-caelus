@@ -11,7 +11,7 @@
         {
             "label": "Watch",
             "type": "shell",
-            "command": "cargo watch -d 2 -x run"
+            "command": "cargo watch -w ./src -w ./assets -d 2 -x run"
         },
         {
             "label": "Run Wasm",

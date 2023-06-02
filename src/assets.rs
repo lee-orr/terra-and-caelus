@@ -5,6 +5,9 @@ use crate::tile::{PlantDefinitions, PlantDefinitionsAsset, TileAsset};
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
+    #[asset(path = "font.ttf")]
+    pub font: Handle<Font>,
+
     #[asset(path = "water.png")]
     pub water: Handle<Image>,
     #[asset(path = "fertile_ground.png")]

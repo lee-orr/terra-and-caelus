@@ -1,7 +1,10 @@
 mod assets;
+mod colors;
 mod control;
 mod display;
 mod generate_tiles;
+mod loading_screen;
+mod menu;
 mod states;
 mod tile;
 mod update_tiles;
@@ -11,9 +14,12 @@ use bevy::{input::common_conditions::input_toggle_active, prelude::*};
 use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
 
 use bevy_inspector_egui::quick::ResourceInspectorPlugin;
+use bevy_vector_shapes::Shape2dPlugin;
 use control::ControlPlugin;
 use display::TileDisplayPlugin;
 use generate_tiles::TileGeneratorPlugin;
+use loading_screen::LoadingScreenPlugin;
+use menu::MenuPlugin;
 use states::AppState;
 use tile::{PlantDefinitions, TilePlugin};
 use update_tiles::UpdateTilesPlugin;
@@ -32,17 +38,20 @@ fn main() {
             }),
             ..default()
         }))
+        .add_plugin(Shape2dPlugin::default())
         .add_loading_state(
-            LoadingState::new(AppState::LoadingAssets).continue_to_state(AppState::InGame),
+            LoadingState::new(AppState::LoadingAssets).continue_to_state(AppState::Menu),
         )
         .add_collection_to_loading_state::<_, GameAssets>(AppState::LoadingAssets)
         .init_resource_after_loading_state::<_, PlantDefinitions>(AppState::LoadingAssets)
+        .add_plugin(LoadingScreenPlugin)
+        .add_plugin(MenuPlugin)
         .add_plugin(TilePlugin)
         .add_plugin(TileGeneratorPlugin)
         .add_plugin(TileDisplayPlugin)
         .add_plugin(UpdateTilesPlugin)
         .add_plugin(ControlPlugin)
-        .insert_resource(ClearColor(Color::rgb(0.1, 0.2, 0.5)))
+        .insert_resource(ClearColor(colors::BACKGROUND))
         .add_startup_system(setup)
         .add_plugin(
             ResourceInspectorPlugin::<PlantDefinitions>::default()

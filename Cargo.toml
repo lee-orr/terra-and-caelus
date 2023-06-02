@@ -21,3 +21,5 @@ noisy_bevy = "0.3"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 bevy-inspector-egui = "*"
+kayak_ui = "0.4"
+bevy_vector_shapes = "0.4"

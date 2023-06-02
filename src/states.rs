@@ -4,5 +4,6 @@ use bevy::prelude::States;
 pub enum AppState {
     #[default]
     LoadingAssets,
+    Menu,
     InGame,
 }
