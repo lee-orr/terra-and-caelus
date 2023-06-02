@@ -35,5 +35,3 @@ Procedural puzzles around manipulating plant growth via powers that transform th
 
 - Bevy Engine
 - Archeolohicaps Font by Manfred Klein - <https://www.1001freefonts.com/archeologicaps.font>
-- Claudius Imperator by Manfred Klein- <https://www.1001freefonts.com/claudius-imperator.font>
-- Jarrow by Roger White - <https://www.1001freefonts.com/jarrow.font>

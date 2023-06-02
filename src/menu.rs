@@ -15,30 +15,45 @@ impl Plugin for MenuPlugin {
 struct MenuItem;
 
 fn setup_menu(mut commands: Commands, assets: Res<GameAssets>) {
-    commands.spawn((
-        MenuItem,
-        // Create a TextBundle that has a Text with a single section.
-        TextBundle::from_section(
-            // Accepts a `String` or any type that converts into a `String`, such as `&str`
-            "Terra and Caelus",
-            TextStyle {
-                font: assets.font.clone(),
-                font_size: 100.0,
-                color: colors::LIGHT,
-            },
-        ) // Set the alignment of the Text
-        .with_text_alignment(TextAlignment::Center)
-        // Set the style of the TextBundle itself.
-        .with_style(Style {
-            position_type: PositionType::Absolute,
-            position: UiRect {
-                bottom: Val::Px(5.0),
-                right: Val::Px(15.0),
+    commands
+        .spawn((
+            MenuItem,
+            NodeBundle {
+                style: Style {
+                    position_type: PositionType::Absolute,
+                    position: UiRect::all(Val::Px(10.)),
+                    flex_direction: FlexDirection::Column,
+                    justify_content: JustifyContent::Center,
+                    align_items: AlignItems::Center,
+                    ..default()
+                },
                 ..default()
             },
-            ..default()
-        }),
-    ));
+        ))
+        .with_children(|p| {
+            p.spawn(
+                TextBundle::from_section(
+                    "Terra and Caelus",
+                    TextStyle {
+                        font: assets.font.clone(),
+                        font_size: 100.0,
+                        color: colors::LIGHT,
+                    },
+                )
+                .with_text_alignment(TextAlignment::Center),
+            );
+            p.spawn(
+                TextBundle::from_section(
+                    "A Game By Lee-Orr",
+                    TextStyle {
+                        font: assets.font.clone(),
+                        font_size: 30.0,
+                        color: colors::SECONDARY,
+                    },
+                )
+                .with_text_alignment(TextAlignment::Center),
+            );
+        });
 }
 
 fn clear_menu(mut commands: Commands, query: Query<Entity, With<MenuItem>>) {
