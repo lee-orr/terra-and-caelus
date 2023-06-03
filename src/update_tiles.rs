@@ -40,17 +40,16 @@ fn plant_flowers_in_tiles(
     query: Query<(Entity, &Tile, &Ground)>,
     mut plant_flower: EventReader<PlantFlower>,
     mut commands: Commands,
-    plants: Res<PlantDefinitions>,
+    _plants: Res<PlantDefinitions>,
 ) {
-    let flower_id = plants
-        .name_to_id
-        .get("flower")
-        .expect("Flower isn't loaded");
+    let flower_id = "flower";
     for plant_flower in plant_flower.iter() {
         let tile = &plant_flower.0;
         if let Some((entity, _, backing)) = query.iter().find(|(_, t, _)| **t == *tile) {
             if *backing != Ground::Water {
-                commands.entity(entity).insert(Plant::Plant(*flower_id));
+                commands
+                    .entity(entity)
+                    .insert(Plant::Plant(flower_id.to_string()));
             }
         }
     }
@@ -67,8 +66,22 @@ fn update_tiles(
         .collect::<HashMap<_, _>>();
 
     for (entity, ground, plant, tile) in query.iter() {
-        let new_ground = update_backing(ground, plant, tile, &tiles, &plants.definitions);
-        let new_plant = update_cell(&new_ground, plant, tile, &tiles, &plants.definitions);
+        let new_ground = update_backing(
+            ground,
+            plant,
+            tile,
+            &tiles,
+            &plants.definitions,
+            &plants.name_to_id,
+        );
+        let new_plant = update_cell(
+            &new_ground,
+            plant,
+            tile,
+            &tiles,
+            &plants.definitions,
+            &plants.name_to_id,
+        );
 
         if new_ground != *ground {
             commands.entity(entity).insert(new_ground);
@@ -86,15 +99,17 @@ fn update_cell(
     tile: &Tile,
     tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Ground, &Plant)>,
     plants: &[PlantDefinition],
+    _name_to_id: &HashMap<String, usize>,
 ) -> Plant {
     match (ground, plant) {
         (Ground::Water, _) => Plant::Empty,
         (Ground::Ground(nutrients), Plant::Empty) => {
-            let plant = plants.iter().enumerate().find(|(id, p)| {
+            let plant = plants.iter().enumerate().find(|(_id, p)| {
+                let id = p.id.as_str();
                 if p.spread_threshold <= *nutrients {
                     if p.seeded {
                         let count = count_matching_neighbours(tile, tiles, |(_, p)| {
-                            **p == Plant::Plant(*id)
+                            **p == Plant::Plant(id.to_string())
                         });
                         count > 0
                     } else {
@@ -105,16 +120,18 @@ fn update_cell(
                 }
             });
             match plant {
-                Some((id, _)) => Plant::Plant(id),
+                Some((_id, p)) => Plant::Plant(p.id.clone()),
                 None => Plant::Empty,
             }
         }
         (Ground::Ground(nutrients), Plant::Plant(id)) => {
-            let plant = plants.iter().enumerate().find(|(i, p)| {
+            let id = id.as_str();
+            let plant = plants.iter().enumerate().find(|(_i, p)| {
+                let i = p.id.as_str();
                 if i != id && p.spread_threshold <= *nutrients {
                     if p.seeded {
                         let count = count_matching_neighbours(tile, tiles, |(_, p)| {
-                            **p == Plant::Plant(*i)
+                            **p == Plant::Plant(i.to_string())
                         });
                         count > 0
                     } else {
@@ -125,7 +142,7 @@ fn update_cell(
                 }
             });
             match plant {
-                Some((id, _)) => Plant::Plant(id),
+                Some((_id, p)) => Plant::Plant(p.id.clone()),
                 None => Plant::Empty,
             }
         }
@@ -138,13 +155,14 @@ fn update_backing(
     tile: &Tile,
     tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Ground, &Plant)>,
     plants: &[PlantDefinition],
+    name_to_id: &HashMap<String, usize>,
 ) -> Ground {
     match ground {
         Ground::Water => Ground::Water,
         Ground::Ground(nutrients) => {
             let available_nutrients = nutrients.saturating_sub(
                 plant
-                    .definition(plants)
+                    .definition(plants, name_to_id)
                     .map(|p| p.local_cost)
                     .unwrap_or_default(),
             );
@@ -152,7 +170,7 @@ fn update_backing(
                 process_neighbours(tile, tiles, available_nutrients, |value, (g, p)| {
                     if let Ground::Ground(nutrients) = **g {
                         let available_nutrients = nutrients.saturating_sub(
-                            p.definition(plants)
+                            p.definition(plants, name_to_id)
                                 .map(|p| p.neighbour_cost)
                                 .unwrap_or_default(),
                         );

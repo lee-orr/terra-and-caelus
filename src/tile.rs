@@ -7,6 +7,8 @@ use bevy_common_assets::json::JsonAssetPlugin;
 use bevy_inspector_egui::{prelude::ReflectInspectorOptions, InspectorOptions};
 use serde::{Deserialize, Serialize};
 
+use crate::assets::GameAssets;
+
 #[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
 pub enum Ground {
     #[default]
@@ -14,18 +16,22 @@ pub enum Ground {
     Ground(i16),
 }
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
+#[derive(Component, Debug, Clone, PartialEq, Eq, Default, Hash)]
 pub enum Plant {
     #[default]
     Empty,
-    Plant(usize),
+    Plant(String),
 }
 
 impl Plant {
-    pub fn definition<'a>(&self, plants: &'a [PlantDefinition]) -> Option<&'a PlantDefinition> {
+    pub fn definition<'a>(
+        &self,
+        plants: &'a [PlantDefinition],
+        name_to_id: &'a HashMap<String, usize>,
+    ) -> Option<&'a PlantDefinition> {
         match self {
             Plant::Empty => None,
-            Plant::Plant(id) => plants.get(*id),
+            Plant::Plant(id) => name_to_id.get(id).and_then(|id| plants.get(*id)),
         }
     }
 }
@@ -68,6 +74,7 @@ pub struct PlantDefinition {
     pub local_cost: i16,
     pub neighbour_cost: i16,
     pub asset: String,
+    pub id: String,
 }
 
 impl PartialOrd for PlantDefinition {
@@ -106,12 +113,39 @@ pub struct TileAsset(pub Handle<Image>, pub Color);
 pub struct PlantDefinitions {
     pub definitions: Vec<PlantDefinition>,
     pub name_to_id: HashMap<String, usize>,
-    pub assets: Vec<TileAsset>,
+    pub assets: HashMap<String, TileAsset>,
 }
 
 #[derive(Default, Debug, Clone, TypeUuid, Serialize, Deserialize)]
 #[uuid = "b17dc730-beba-4e73-89c7-c6cfc692f02e"]
-pub struct PlantDefinitionsAsset(pub HashMap<String, PlantDefinition>);
+pub struct PlantDefinitionsAsset(pub Vec<PlantDefinition>);
+
+impl From<(PlantDefinitionsAsset, AssetServer)> for PlantDefinitions {
+    fn from((p, server): (PlantDefinitionsAsset, AssetServer)) -> Self {
+        let mut p =
+            p.0.iter()
+                .enumerate()
+                .map(|(id, plant)| {
+                    let plant = (*plant).clone();
+                    (id, plant.id.clone(), plant)
+                })
+                .collect::<Vec<_>>();
+
+        p.sort_by(|a, b| b.2.partial_cmp(&a.2).unwrap_or(std::cmp::Ordering::Equal));
+
+        Self {
+            definitions: p.iter().map(|(_, _, p)| p.clone()).collect(),
+            name_to_id: p
+                .iter()
+                .map(|(id, name, _)| (name.to_string(), *id))
+                .collect(),
+            assets: p
+                .iter()
+                .map(|(_, _, p)| (p.id.clone(), TileAsset(server.load(&p.asset), p.color)))
+                .collect(),
+        }
+    }
+}
 
 pub struct TilePlugin;
 
@@ -123,6 +157,24 @@ impl Plugin for TilePlugin {
             .register_type::<PlantDefinitions>()
             .add_plugin(JsonAssetPlugin::<PlantDefinitionsAsset>::new(&[
                 "pdef.json",
-            ]));
+            ]))
+            .add_system(update_plant_definitions);
     }
+}
+
+fn update_plant_definitions(
+    events: EventReader<AssetEvent<PlantDefinitionsAsset>>,
+    server: Res<AssetServer>,
+    assets: Option<Res<GameAssets>>,
+    plant_assets: Res<Assets<PlantDefinitionsAsset>>,
+    mut commands: Commands,
+) {
+    if events.is_empty() {
+        return;
+    }
+    let Some(assets) = assets else { return; };
+    let Some(definitions) = plant_assets.get(&assets.plants) else { return; };
+    let server: AssetServer = server.clone();
+    let def = (definitions.clone(), server).into();
+    commands.insert_resource::<PlantDefinitions>(def);
 }

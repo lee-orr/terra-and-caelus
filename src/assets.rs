@@ -2,7 +2,7 @@ use belly::prelude::StyleSheet;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 
-use crate::tile::{PlantDefinitions, PlantDefinitionsAsset, TileAsset};
+use crate::tile::{PlantDefinitions, PlantDefinitionsAsset};
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
@@ -48,24 +48,6 @@ impl FromWorld for PlantDefinitions {
 
         info!("Plant Definitions: {p:?}");
 
-        let mut p = p.0.iter().collect::<Vec<_>>();
-        p.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap_or(std::cmp::Ordering::Equal));
-        let p = p
-            .iter()
-            .enumerate()
-            .map(|(id, (name, plant))| (id, name, plant))
-            .collect::<Vec<_>>();
-
-        Self {
-            definitions: p.iter().map(|(_, _, p)| (**p).clone()).collect(),
-            name_to_id: p
-                .iter()
-                .map(|(id, name, _)| (name.to_string(), *id))
-                .collect(),
-            assets: p
-                .iter()
-                .map(|(_, _, p)| TileAsset(server.load(&p.asset), p.color))
-                .collect(),
-        }
+        (p, server.clone()).into()
     }
 }

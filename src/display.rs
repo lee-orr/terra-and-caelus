@@ -61,7 +61,7 @@ fn get_tile_image(
             Plant::Empty => None,
             Plant::Plant(p) => plants
                 .assets
-                .get(*p)
+                .get(p.as_str())
                 .map(|TileAsset(asset, c)| (asset.clone(), *c)),
         },
     )

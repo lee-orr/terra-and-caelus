@@ -1,5 +1,5 @@
-{
-  "moss": {
+[
+  {
     "color": {
       "Rgba": {
         "red": 1,
@@ -14,9 +14,10 @@
     "spread_threshold": 4,
     "local_cost": 3,
     "neighbour_cost": -1,
-    "asset": "moss.png"
+    "asset": "moss.png",
+    "id": "moss"
   },
-  "flower": {
+  {
     "color": {
       "Rgba": {
         "red": 1,
@@ -31,9 +32,10 @@
     "spread_threshold": 6,
     "local_cost": 4,
     "neighbour_cost": 3,
-    "asset": "flower.png"
+    "asset": "flower.png",
+    "id": "flower"
   },
-  "other_flower": {
+  {
     "color": {
       "Rgba": {
         "red": 0.4,
@@ -48,6 +50,7 @@
     "spread_threshold": 4,
     "local_cost": 8,
     "neighbour_cost": 12,
-    "asset": "flower.png"
+    "asset": "flower.png",
+    "id": "other_flower"
   }
-}
+]

@@ -52,7 +52,7 @@ fn generate_tiles(
     mut commands: Commands,
     existing_levels: Query<Entity, With<Level>>,
     mut generator: ResMut<NoisyGenerator>,
-    plants: Res<PlantDefinitions>,
+    _plants: Res<PlantDefinitions>,
 ) {
     for entity in existing_levels.iter() {
         commands.entity(entity).despawn_recursive();
@@ -61,11 +61,8 @@ fn generate_tiles(
     commands
         .spawn((SpatialBundle::default(), Level))
         .with_children(|p| {
-            let moss_id = plants.name_to_id.get("moss").expect("Moss isn't loaded");
-            let other_flower = plants
-                .name_to_id
-                .get("other_flower")
-                .expect("Moss isn't loaded");
+            let moss_id = "moss".to_string();
+            let other_flower = "other_flower".to_string();
             for x in -10..10 {
                 for y in -10..10 {
                     let backing = generator
@@ -98,10 +95,10 @@ fn generate_tiles(
                             Plant::Empty,
                             Plant::Empty,
                             Plant::Empty,
-                            Plant::Plant(*moss_id),
-                            Plant::Plant(*moss_id),
-                            Plant::Plant(*moss_id),
-                            Plant::Plant(*other_flower),
+                            Plant::Plant(moss_id.clone()),
+                            Plant::Plant(moss_id.clone()),
+                            Plant::Plant(moss_id.clone()),
+                            Plant::Plant(other_flower.clone()),
                         ])
                         .cloned()
                         .unwrap_or_default();
