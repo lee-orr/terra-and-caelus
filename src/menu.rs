@@ -1,6 +1,5 @@
-use bevy::prelude::*;
-
 use crate::{assets::GameAssets, colors, states::AppState};
+use bevy::prelude::*;
 
 pub struct MenuPlugin;
 

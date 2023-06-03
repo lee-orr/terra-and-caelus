@@ -7,19 +7,11 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.10" }
-bevy_proto = "0.10"
-iyes_progress = "0.8"
-bevy_ecs_markers = "1"
-spew = "0.2"
 bevy_common_assets = { version = "0.6.0", features = ["json"] }
 bevy_asset_loader = "0.16"
-bevy_dolly = { git = "https://github.com/BlackPhlox/bevy_dolly", features = [
-    "drivers",
-] }
 console_error_panic_hook = "0.1"
 noisy_bevy = "0.3"
 serde = { version = "1", features = ["derive"] }
 serde_yaml = "0.9"
 bevy-inspector-egui = "*"
-kayak_ui = "0.4"
 bevy_vector_shapes = "0.4"
