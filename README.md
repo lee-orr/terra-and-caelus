@@ -23,7 +23,7 @@ Procedural puzzles around manipulating plant growth via powers that transform th
 
 ## TODO
 
-- [ ] Create Menu
+- [x] Create Menu
 - [ ] Load Hand Written Levels
 - [ ] Create & Control Player
 - [ ] Get Goals Working
