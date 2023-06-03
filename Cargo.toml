@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 bevy = { version = "0.10" }
-bevy_common_assets = { version = "0.6.0", features = ["json"] }
+bevy_common_assets = { version = "0.6.0", features = ["json", "yaml"] }
 bevy_asset_loader = "0.16"
 console_error_panic_hook = "0.1"
 noisy_bevy = "0.3"

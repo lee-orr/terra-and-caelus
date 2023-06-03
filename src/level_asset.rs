@@ -1,7 +1,7 @@
 use std::{fmt, marker::PhantomData, str::FromStr};
 
 use bevy::{prelude::*, reflect::TypeUuid, utils::HashMap};
-use bevy_common_assets::json::JsonAssetPlugin;
+use bevy_common_assets::{json::JsonAssetPlugin, yaml::YamlAssetPlugin};
 use serde::{
     de::{self, MapAccess, Visitor},
     Deserialize, Deserializer, Serialize,
@@ -13,7 +13,7 @@ pub struct LevelAssetPlugin;
 
 impl Plugin for LevelAssetPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_plugin(JsonAssetPlugin::<LevelAsset>::new(&["lvl.json"]))
+        app.add_plugin(YamlAssetPlugin::<LevelAsset>::new(&["lvl.yaml"]))
             .add_plugin(JsonAssetPlugin::<LevelList>::new(&["lvl.list.json"]))
             .init_resource::<CurrentLevel>()
             .add_event::<CurrentLevelHotReload>()

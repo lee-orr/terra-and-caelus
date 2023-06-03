@@ -50,7 +50,7 @@ fn setup_menu(mut commands: Commands, assets: Res<GameAssets>, level_list: Res<A
 }
 
 fn level_display(name: &str) -> String {
-    name.replace(".lvl.json", "").replace('_', " ")
+    name.replace(".lvl.yaml", "").replace('_', " ")
 }
 
 fn clear_menu(mut commands: Commands, query: Query<Entity, With<MenuItem>>) {
