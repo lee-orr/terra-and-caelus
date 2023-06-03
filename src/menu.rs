@@ -27,7 +27,7 @@ fn setup_menu(mut commands: Commands, assets: Res<GameAssets>, mut styles: ResMu
                 "Play"
                 </span>
             </button>
-            <button c:menu_button c:secondary on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::Credits)))>
+            <button c:menu_button c:small_menu_button c:secondary on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::Credits)))>
                 <span c:content>
                 "Credits"
                 </span>

@@ -37,13 +37,20 @@ fn main() {
         .add_state::<AppState>()
         .insert_resource(ClearColor(colors::BACKGROUND))
         // Built In Plugins
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window {
-                fit_canvas_to_parent: true,
-                ..default()
-            }),
-            ..default()
-        }))
+        .add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin {
+                    primary_window: Some(Window {
+                        fit_canvas_to_parent: true,
+                        ..default()
+                    }),
+                    ..default()
+                })
+                .set(AssetPlugin {
+                    watch_for_changes: true,
+                    ..Default::default()
+                }),
+        )
         // External Plugins
         .add_plugin(Shape2dPlugin::default())
         .add_plugin(BellyPlugin)

@@ -129,6 +129,11 @@ button.menu_button:hover .button-foreground {
     margin: 40px;
 }
 
+.small_menu_button {
+    padding: 10px;
+    margin: 20px;
+}
+
 .menu_button.secondary {
     background-color: #D9D973;
 }
@@ -145,6 +150,10 @@ button.menu_button:hover .button-foreground {
     font: "font.ttf";
     font-size: 45;
     color: #D9D973;
+}
+
+.small_menu_button .content {
+    font-size: 25;
 }
 
 .secondary .content {

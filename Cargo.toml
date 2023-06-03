@@ -12,7 +12,6 @@ bevy_asset_loader = "0.16"
 console_error_panic_hook = "0.1"
 noisy_bevy = "0.3"
 serde = { version = "1", features = ["derive"] }
-serde_yaml = "0.9"
 bevy-inspector-egui = "*"
 bevy_vector_shapes = "0.4"
 belly = { git = "https://github.com/jkb0o/belly" }

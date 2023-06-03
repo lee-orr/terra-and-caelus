@@ -33,13 +33,13 @@ fn setup_menu(mut commands: Commands, assets: Res<GameAssets>, mut styles: ResMu
             <div c:credit>"Noisy Bevy"</div>
             <div c:credit>"Bevy Asset Loader"</div>
             <div c:credit>"Bevy Common Assets"</div>
-            <div c:credit>"Serde & Serde Yaml"</div>
+            <div c:credit>"Serde"</div>
             <div c:credit>"Bevy Vector Shapes"</div>
             <div c:credit>"Belly"</div>
             <div c:credit>"Console Error Panic Hook"</div>
             <div c:credit>"Wasm Bindgen"</div>
             <div c:credit>"Wasm Server Runner"</div>
-            <button c:menu_button on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::Menu)))>
+            <button c:menu_button c:small_menu_button on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::Menu)))>
                 <span c:content>
                 "Menu"
                 </span>
