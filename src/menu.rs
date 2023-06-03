@@ -22,7 +22,7 @@ fn setup_menu(mut commands: Commands, assets: Res<GameAssets>, mut styles: ResMu
         <body {ui} c:root>
             <div c:header>"Terra and Caelus"</div>
             <div c:subheader>"A Game By Lee-Orr"</div>
-            <button c:menu_button on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::InGame)))>
+            <button c:menu_button on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::LevelList)))>
                 <span c:content>
                 "Play"
                 </span>

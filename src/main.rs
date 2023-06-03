@@ -4,6 +4,9 @@ mod control;
 mod credits;
 mod display;
 mod generate_tiles;
+mod level_asset;
+mod level_list;
+mod level_loading_screen;
 mod loading_screen;
 mod menu;
 mod states;
@@ -21,6 +24,9 @@ use control::ControlPlugin;
 use credits::CreditsPlugin;
 use display::TileDisplayPlugin;
 use generate_tiles::TileGeneratorPlugin;
+use level_asset::LevelAssetPlugin;
+use level_list::LevelListPlugin;
+use level_loading_screen::LevelLoadingScreenPlugin;
 use loading_screen::LoadingScreenPlugin;
 use menu::MenuPlugin;
 use states::AppState;
@@ -64,8 +70,11 @@ fn main() {
         .add_collection_to_loading_state::<_, GameAssets>(AppState::LoadingAssets)
         .init_resource_after_loading_state::<_, PlantDefinitions>(AppState::LoadingAssets)
         // Internal Plugins
+        .add_plugin(LevelAssetPlugin)
         .add_plugin(LoadingScreenPlugin)
         .add_plugin(MenuPlugin)
+        .add_plugin(LevelListPlugin)
+        .add_plugin(LevelLoadingScreenPlugin)
         .add_plugin(CreditsPlugin)
         .add_plugin(TilePlugin)
         .add_plugin(TileGeneratorPlugin)

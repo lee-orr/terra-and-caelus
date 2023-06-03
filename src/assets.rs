@@ -2,7 +2,10 @@ use belly::prelude::StyleSheet;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 
-use crate::tile::{PlantDefinitions, PlantDefinitionsAsset};
+use crate::{
+    level_asset::LevelList,
+    tile::{PlantDefinitions, PlantDefinitionsAsset},
+};
 
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
@@ -26,6 +29,8 @@ pub struct GameAssets {
 
     #[asset(path = "plants.pdef.json")]
     pub plants: Handle<PlantDefinitionsAsset>,
+    #[asset(path = "levels.lvl.list.json")]
+    pub levels: Handle<LevelList>,
 }
 
 impl FromWorld for PlantDefinitions {

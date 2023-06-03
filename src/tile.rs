@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use bevy::{
     prelude::*,
     reflect::{FromReflect, Reflect, TypeUuid},
@@ -9,14 +11,26 @@ use serde::{Deserialize, Serialize};
 
 use crate::assets::GameAssets;
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash, Serialize, Deserialize)]
 pub enum Ground {
     #[default]
     Water,
     Ground(i16),
 }
 
-#[derive(Component, Debug, Clone, PartialEq, Eq, Default, Hash)]
+impl FromStr for Ground {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if "g" == s {
+            Ok(Ground::Ground(8))
+        } else {
+            Ok(Ground::Water)
+        }
+    }
+}
+
+#[derive(Component, Debug, Clone, PartialEq, Eq, Default, Hash, Serialize, Deserialize)]
 pub enum Plant {
     #[default]
     Empty,
@@ -36,7 +50,20 @@ impl Plant {
     }
 }
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
+impl FromStr for Plant {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.starts_with("p.") {
+            let s = s.trim_start_matches("p.");
+            Ok(Plant::Plant(s.to_string()))
+        } else {
+            Ok(Plant::Empty)
+        }
+    }
+}
+
+#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash, Serialize, Deserialize)]
 pub struct Tile(pub i8, pub i8);
 
 impl From<Vec2> for Tile {

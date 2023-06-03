@@ -5,6 +5,8 @@ pub enum AppState {
     #[default]
     LoadingAssets,
     Menu,
+    LevelList,
+    LoadingLevel,
     InGame,
     Credits,
 }
