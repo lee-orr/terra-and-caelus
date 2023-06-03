@@ -6,4 +6,5 @@ pub enum AppState {
     LoadingAssets,
     Menu,
     InGame,
+    Credits,
 }

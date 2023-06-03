@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use bevy::prelude::Color;
 
 pub const BACKGROUND: Color = Color::rgb(0.27, 0.3, 0.4);

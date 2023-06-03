@@ -1,0 +1,162 @@
+.root {
+    width: 100%;
+    height: 100%;
+    margin: 10px;
+    padding: 10px;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    font: "font.ttf";
+}
+
+.bg_color_base {
+    background-color: #454D66;
+}
+
+.bg_color_dark {
+    background-color: #309975;
+}
+
+.bg_color_light {
+    background-color: #59B366;
+}
+
+.bg_color_secondary {
+    background-color: #D9D973;
+}
+
+.bg_color_pale {
+    background-color: #F0EDB5;
+}
+
+
+.color_base {
+    color: #454D66;
+}
+
+.color_dark {
+    color: #309975;
+}
+
+.color_light {
+    color: #59B366;
+}
+
+.color_secondary {
+    color: #D9D973;
+}
+
+.color_pale {
+    color: #F0EDB5;
+}
+
+.header {
+    font-size: 100;
+    color: #59B366;
+    font: "font.ttf";
+}
+
+.subheader {
+    font-size: 30;
+    color: #D9D973;
+    font: "font.ttf";
+}
+
+button {
+    stylebox-region: 0px;
+    stylebox-source: none;
+    stylebox-width: 0px;
+    border-width: 0px;
+    background-color: transparent;
+}
+
+button:hover {
+    stylebox-region: 0px;
+    stylebox-source: none;
+    stylebox-width: 0px;
+    border-width: 0px;
+    background-color: transparent;
+}
+
+button .button-shadow {
+    background-color: transparent;
+    padding: 0px;
+}
+
+button:hover .button-shadow {
+    background-color: transparent;
+    padding: 0px;
+}
+
+button .button-background {
+    background-color: transparent;
+    padding: 0px;
+}
+
+button:hover .button-background {
+    background-color: transparent;
+    padding: 0px;
+}
+
+button .button-foreground {
+    background-color: transparent !important;
+    stylebox-region: 0px;
+    stylebox-source: none;
+    stylebox-width: 0px;
+    border-width: 0px;
+    background-color: transparent;
+    padding: 0px;
+}
+
+button:hover .button-foreground {
+    background-color: transparent !important;
+    stylebox-region: 0px;
+    stylebox-source: none;
+    stylebox-width: 0px;
+    border-width: 0px;
+    background-color: transparent;
+    padding: 0px;
+}
+
+button.menu_button:hover .button-foreground {
+    background-color: transparent !important;
+}
+
+.menu_button {
+    background-color: #309975;
+    padding: 20px;
+    margin: 40px;
+}
+
+.menu_button.secondary {
+    background-color: #D9D973;
+}
+
+.menu_button:hover {
+    background-color: #59B366;
+}
+
+.menu_button.secondary:hover {
+    background-color: #F0EDB5;
+}
+
+.content {
+    font: "font.ttf";
+    font-size: 45;
+    color: #D9D973;
+}
+
+.secondary .content {
+    color: #309975;
+}
+
+.credit {
+    font: "font.ttf";
+    font-size: 18;
+    color: #F0EDB5;
+}
+
+.separator {
+    height: 20px;
+}

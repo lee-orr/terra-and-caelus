@@ -1,3 +1,4 @@
+use belly::prelude::StyleSheet;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
 
@@ -7,6 +8,8 @@ use crate::tile::{PlantDefinitions, PlantDefinitionsAsset, TileAsset};
 pub struct GameAssets {
     #[asset(path = "font.ttf")]
     pub font: Handle<Font>,
+    #[asset(path = "ui.ess")]
+    pub ui_style: Handle<StyleSheet>,
 
     #[asset(path = "water.png")]
     pub water: Handle<Image>,

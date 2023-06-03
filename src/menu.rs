@@ -1,4 +1,5 @@
-use crate::{assets::GameAssets, colors, states::AppState};
+use crate::{assets::GameAssets, states::AppState};
+use belly::{core::ess::Styles, prelude::*};
 use bevy::prelude::*;
 
 pub struct MenuPlugin;
@@ -13,46 +14,26 @@ impl Plugin for MenuPlugin {
 #[derive(Component)]
 struct MenuItem;
 
-fn setup_menu(mut commands: Commands, assets: Res<GameAssets>) {
-    commands
-        .spawn((
-            MenuItem,
-            NodeBundle {
-                style: Style {
-                    position_type: PositionType::Absolute,
-                    position: UiRect::all(Val::Px(10.)),
-                    flex_direction: FlexDirection::Column,
-                    justify_content: JustifyContent::Center,
-                    align_items: AlignItems::Center,
-                    ..default()
-                },
-                ..default()
-            },
-        ))
-        .with_children(|p| {
-            p.spawn(
-                TextBundle::from_section(
-                    "Terra and Caelus",
-                    TextStyle {
-                        font: assets.font.clone(),
-                        font_size: 100.0,
-                        color: colors::LIGHT,
-                    },
-                )
-                .with_text_alignment(TextAlignment::Center),
-            );
-            p.spawn(
-                TextBundle::from_section(
-                    "A Game By Lee-Orr",
-                    TextStyle {
-                        font: assets.font.clone(),
-                        font_size: 30.0,
-                        color: colors::SECONDARY,
-                    },
-                )
-                .with_text_alignment(TextAlignment::Center),
-            );
-        });
+fn setup_menu(mut commands: Commands, assets: Res<GameAssets>, mut styles: ResMut<Styles>) {
+    styles.insert(assets.ui_style.clone());
+    let ui = commands.spawn(MenuItem).id();
+
+    commands.add(eml! {
+        <body {ui} c:root>
+            <div c:header>"Terra and Caelus"</div>
+            <div c:subheader>"A Game By Lee-Orr"</div>
+            <button c:menu_button on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::InGame)))>
+                <span c:content>
+                "Play"
+                </span>
+            </button>
+            <button c:menu_button c:secondary on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::Credits)))>
+                <span c:content>
+                "Credits"
+                </span>
+            </button>
+        </body>
+    });
 }
 
 fn clear_menu(mut commands: Commands, query: Query<Entity, With<MenuItem>>) {
