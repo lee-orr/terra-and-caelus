@@ -28,7 +28,22 @@ Procedural puzzles around manipulating plant growth via powers that transform th
 - [x] Create & Control Player
 - [x] Get Goals Working
 - [ ] Create Powers
+  - [ ] Fertilize a tile
+  - [ ] Plant a seed
+  - [ ] Teleport Player
+  - [ ] Drain a tile
+  - [ ] Start a fire
+  - [ ] Wind - blow seeds across a gap
 - [ ] Adjust Simulation Rules for Clarity
+  Ground Cover
+  - [ ] Grass - spreads to neighbouring fertile tiles soil, but not to drained tiles or sand or through other plants
+  - [ ] Creepying Thyme - spreads to neighbouring fertile tiles & sand, but not through other plants
+  Flowers
+  - [ ] Peony - only spreads through very fertile soil, doesn't drain
+  - [ ] Hibiscus - only spreads through seeds, but enhances soil
+  Weeds
+  - [ ] Crabgrass - grows well in under-fertilized land, spread well, clears if too fertilized
+  - [ ] Dandelion - spreads by wind, grows quickly, cleared if drained
 - [ ] Generate Levels*
 
 ## Assets
