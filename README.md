@@ -25,7 +25,7 @@ Procedural puzzles around manipulating plant growth via powers that transform th
 
 - [x] Create Menu
 - [x] Load Hand Written Levels
-- [ ] Create & Control Player
+- [x] Create & Control Player
 - [ ] Get Goals Working
 - [ ] Create Powers
 - [ ] Adjust Simulation Rules for Clarity
