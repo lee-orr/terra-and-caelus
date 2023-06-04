@@ -4,7 +4,7 @@ use bevy::{prelude::*, time::common_conditions::on_timer, utils::HashMap};
 
 use crate::{
     states::AppState,
-    tile::{Fertalize, Ground, Plant, PlantDefinition, PlantDefinitions, PlantFlower, Tile},
+    tile::{Fertalize, Ground, Plant, PlantDefinition, PlantDefinitions, Tile},
 };
 
 pub struct UpdateTilesPlugin;
@@ -16,8 +16,7 @@ impl Plugin for UpdateTilesPlugin {
                 in_state(AppState::InGame).and_then(on_timer(Duration::from_secs_f32(0.5))),
             ),
         )
-        .add_system(fertilize_tiles.in_set(OnUpdate(AppState::InGame)))
-        .add_system(plant_flowers_in_tiles.in_set(OnUpdate(AppState::InGame)));
+        .add_system(fertilize_tiles.in_set(OnUpdate(AppState::InGame)));
     }
 }
 
@@ -31,25 +30,6 @@ fn fertilize_tiles(
         if let Some((entity, _, backing)) = query.iter().find(|(_, t, _)| **t == *tile) {
             if *backing != Ground::Water {
                 commands.entity(entity).insert(Ground::Ground(60));
-            }
-        }
-    }
-}
-
-fn plant_flowers_in_tiles(
-    query: Query<(Entity, &Tile, &Ground)>,
-    mut plant_flower: EventReader<PlantFlower>,
-    mut commands: Commands,
-    _plants: Res<PlantDefinitions>,
-) {
-    let flower_id = "flower";
-    for plant_flower in plant_flower.iter() {
-        let tile = &plant_flower.0;
-        if let Some((entity, _, backing)) = query.iter().find(|(_, t, _)| **t == *tile) {
-            if *backing != Ground::Water {
-                commands
-                    .entity(entity)
-                    .insert(Plant::Plant(flower_id.to_string()));
             }
         }
     }

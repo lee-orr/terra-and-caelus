@@ -16,3 +16,4 @@ bevy-inspector-egui = "*"
 bevy_vector_shapes = "0.4"
 belly = { git = "https://github.com/jkb0o/belly" }
 anyhow = "*"
+leafwing-input-manager = "*"
