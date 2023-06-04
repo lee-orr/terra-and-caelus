@@ -15,8 +15,13 @@ impl Plugin for TargetPlugin {
     }
 }
 
+#[derive(Component, Debug, Clone, Copy)]
+pub enum Reward {
+    CompleteLevel,
+}
+
 #[derive(Component, Debug, Clone)]
-pub struct Target(pub Tile, pub String);
+pub struct Target(pub Tile, pub String, pub Reward);
 
 fn setup_target(
     mut commands: Commands,
