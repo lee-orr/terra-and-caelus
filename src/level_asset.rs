@@ -7,7 +7,7 @@ use serde::{
     Deserialize, Deserializer, Serialize,
 };
 
-use crate::tile::{Ground, Plant, Tile};
+use crate::tile::{GameEntity, Ground, Plant, Tile};
 
 pub struct LevelAssetPlugin;
 
@@ -37,7 +37,7 @@ pub struct LevelAsset {
 pub struct CurrentLevel(pub Option<Handle<LevelAsset>>);
 
 #[derive(Clone, Default, Serialize, Deserialize)]
-pub struct LevelTiles(pub HashMap<Tile, (Ground, Plant)>);
+pub struct LevelTiles(pub HashMap<Tile, (Ground, Plant, Vec<GameEntity>)>);
 
 impl FromStr for LevelTiles {
     type Err = anyhow::Error;
@@ -65,6 +65,7 @@ impl FromStr for LevelTiles {
                     plant
                         .map(|p: &str| Plant::from_str(p).unwrap_or_default())
                         .unwrap_or_default(),
+                    split.filter_map(|s| GameEntity::from_str(s).ok()).collect(),
                 );
 
                 tiles.push((tile, content));

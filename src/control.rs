@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
+    assets::GameAssets,
     states::AppState,
     tile::{Fertalize, PlantFlower, TILE_WORLD_SIZE},
 };
@@ -9,28 +10,33 @@ pub struct ControlPlugin;
 
 impl Plugin for ControlPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(setup.in_schedule(OnEnter(AppState::InGame)))
+        app.add_system(setup.in_set(OnUpdate(AppState::InGame)))
             .add_system(show_position.in_set(OnUpdate(AppState::InGame)))
             .add_system(click.in_set(OnUpdate(AppState::InGame)));
     }
 }
 
 #[derive(Component)]
-pub struct Player;
+pub struct Player(pub i8, pub i8);
 
-fn setup(mut commands: Commands) {
-    commands.spawn((
-        Player,
-        SpriteBundle {
+fn setup(
+    mut commands: Commands,
+    players: Query<(Entity, &Player), Without<Sprite>>,
+    assets: Res<GameAssets>,
+) {
+    for (e, player) in players.iter() {
+        commands.entity(e).insert(SpriteBundle {
+            transform: Transform::from_translation(
+                Vec3::new(player.0 as f32, player.1 as f32, 2.) * TILE_WORLD_SIZE,
+            ),
             sprite: Sprite {
-                color: Color::PURPLE,
-                custom_size: Some(Vec2::new(10., 10.)),
+                custom_size: Some(Vec2::new(TILE_WORLD_SIZE, TILE_WORLD_SIZE)),
                 ..default()
             },
-            transform: Transform::from_xyz(0., 0., 5.),
-            ..Default::default()
-        },
-    ));
+            texture: assets.player.clone(),
+            ..default()
+        });
+    }
 }
 
 fn show_position(

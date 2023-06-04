@@ -1,9 +1,10 @@
 use bevy::{input::common_conditions::input_just_pressed, prelude::*};
 
 use crate::{
+    control::Player,
     level_asset::{CurrentLevel, CurrentLevelHotReload, LevelAsset},
     states::AppState,
-    tile::TILE_WORLD_SIZE,
+    tile::{GameEntity, TILE_WORLD_SIZE},
 };
 
 pub struct TileGeneratorPlugin;
@@ -43,7 +44,7 @@ fn generate_tiles(
     commands
         .spawn((SpatialBundle::default(), Level))
         .with_children(|p| {
-            for (tile, (ground, plant)) in level.tiles.0.iter() {
+            for (tile, (ground, plant, game_entities)) in level.tiles.0.iter() {
                 p.spawn((
                     SpriteBundle {
                         sprite: Sprite {
@@ -69,6 +70,12 @@ fn generate_tiles(
                         ..default()
                     });
                 });
+
+                for ge in game_entities.iter() {
+                    match ge {
+                        GameEntity::Player => p.spawn((Player(tile.0, tile.1),)),
+                    };
+                }
             }
         });
 }

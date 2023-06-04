@@ -2,6 +2,6 @@
 name: Test Level
 tiles: |-
   w w w w
-  w g g:p.moss g
-  g g g g
-  w g:p.flower g g
+  w g g g::p
+  g:.flower g g g
+  w g g w

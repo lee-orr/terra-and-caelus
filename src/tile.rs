@@ -54,11 +54,27 @@ impl FromStr for Plant {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if s.starts_with("p.") {
-            let s = s.trim_start_matches("p.");
+        if s.starts_with('.') {
+            let s = s.trim_start_matches('.');
             Ok(Plant::Plant(s.to_string()))
         } else {
             Ok(Plant::Empty)
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum GameEntity {
+    Player,
+}
+
+impl FromStr for GameEntity {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "p" => Ok(GameEntity::Player),
+            _ => Err(anyhow::Error::msg("No Entity")),
         }
     }
 }

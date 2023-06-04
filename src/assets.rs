@@ -14,6 +14,9 @@ pub struct GameAssets {
     #[asset(path = "ui.ess")]
     pub ui_style: Handle<StyleSheet>,
 
+    #[asset(path = "player.png")]
+    pub player: Handle<Image>,
+
     #[asset(path = "water.png")]
     pub water: Handle<Image>,
     #[asset(path = "fertile_ground.png")]
