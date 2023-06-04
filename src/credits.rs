@@ -25,17 +25,19 @@ fn setup_menu(mut commands: Commands, assets: Res<GameAssets>, mut styles: ResMu
             <div c:credit>"Design, Development by Lee-Orr"</div>
             <div c:separator></div>
             <div c:subheader>"With Assets By"</div>
-            <div c:credit>"Archeolohicaps Font by Manfred Klein"</div>
+            <div c:credit>"Archeologicaps Font by Manfred Klein"</div>
             <div c:credit>"All Other Art And Music Assets by Lee-Orr"</div>
             <div c:separator></div>
             <div c:subheader>"Using the following Rust crates:"</div>
             <div c:credit>"The Bevy Game Engine"</div>
-            <div c:credit>"Noisy Bevy"</div>
             <div c:credit>"Bevy Asset Loader"</div>
             <div c:credit>"Bevy Common Assets"</div>
             <div c:credit>"Serde"</div>
             <div c:credit>"Bevy Vector Shapes"</div>
             <div c:credit>"Belly"</div>
+            <div c:credit>"Leafwing Input Manager"</div>
+            <div c:credit>"Anyhow"</div>
+            <div c:credit>"Bevy Inspector Egui"</div>
             <div c:credit>"Console Error Panic Hook"</div>
             <div c:credit>"Wasm Bindgen"</div>
             <div c:credit>"Wasm Server Runner"</div>

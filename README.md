@@ -34,4 +34,4 @@ Procedural puzzles around manipulating plant growth via powers that transform th
 ## Assets
 
 - Bevy Engine
-- Archeolohicaps Font by Manfred Klein - <https://www.1001freefonts.com/archeologicaps.font>
+- Archeologicaps Font by Manfred Klein - <https://www.1001freefonts.com/archeologicaps.font>
