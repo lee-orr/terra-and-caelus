@@ -10,6 +10,7 @@ mod level_loading_screen;
 mod loading_screen;
 mod menu;
 mod states;
+mod target;
 mod tile;
 mod update_tiles;
 
@@ -30,6 +31,7 @@ use level_loading_screen::LevelLoadingScreenPlugin;
 use loading_screen::LoadingScreenPlugin;
 use menu::MenuPlugin;
 use states::AppState;
+use target::TargetPlugin;
 use tile::{PlantDefinitions, TilePlugin};
 use update_tiles::UpdateTilesPlugin;
 
@@ -81,6 +83,7 @@ fn main() {
         .add_plugin(TileDisplayPlugin)
         .add_plugin(UpdateTilesPlugin)
         .add_plugin(ControlPlugin)
+        .add_plugin(TargetPlugin)
         // Systems
         .add_startup_system(setup)
         .run();

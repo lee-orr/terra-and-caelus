@@ -66,15 +66,20 @@ impl FromStr for Plant {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum GameEntity {
     Player,
+    Target(String),
 }
 
 impl FromStr for GameEntity {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "p" => Ok(GameEntity::Player),
-            _ => Err(anyhow::Error::msg("No Entity")),
+        if "p" == s {
+            Ok(GameEntity::Player)
+        } else if s.starts_with("t.") {
+            let s = s.trim_start_matches("t.");
+            Ok(GameEntity::Target(s.to_string()))
+        } else {
+            Err(anyhow::Error::msg("No Entity"))
         }
     }
 }

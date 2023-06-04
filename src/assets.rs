@@ -16,6 +16,8 @@ pub struct GameAssets {
 
     #[asset(path = "player.png")]
     pub player: Handle<Image>,
+    #[asset(path = "goal_pillar.png")]
+    pub goal: Handle<Image>,
 
     #[asset(path = "water.png")]
     pub water: Handle<Image>,

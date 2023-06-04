@@ -4,6 +4,7 @@ use crate::{
     control::Player,
     level_asset::{CurrentLevel, CurrentLevelHotReload, LevelAsset},
     states::AppState,
+    target::Target,
     tile::{GameEntity, TILE_WORLD_SIZE},
 };
 
@@ -21,7 +22,8 @@ impl Plugin for TileGeneratorPlugin {
                 generate_tiles.in_base_set(CoreSet::PostUpdate).run_if(
                     in_state(AppState::InGame).and_then(on_event::<CurrentLevelHotReload>()),
                 ),
-            );
+            )
+            .add_system(clear_level.in_schedule(OnExit(AppState::InGame)));
     }
 }
 
@@ -74,8 +76,16 @@ fn generate_tiles(
                 for ge in game_entities.iter() {
                     match ge {
                         GameEntity::Player => p.spawn((Player(tile.0, tile.1),)),
+                        GameEntity::Target(t) => p.spawn(Target(*tile, t.clone())),
                     };
                 }
             }
         });
+}
+
+fn clear_level(mut commands: Commands, existing_levels: Query<Entity, With<Level>>) {
+    for entity in existing_levels.iter() {
+        commands.entity(entity).despawn_recursive();
+    }
+    commands.insert_resource(CurrentLevel(None));
 }
