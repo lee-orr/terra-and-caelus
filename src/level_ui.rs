@@ -23,6 +23,7 @@ impl Plugin for LevelUiPlugin {
 #[derive(Component)]
 struct MenuItem;
 
+#[allow(clippy::too_many_arguments)]
 fn setup_menu(
     mut commands: Commands,
     assets: Res<GameAssets>,
