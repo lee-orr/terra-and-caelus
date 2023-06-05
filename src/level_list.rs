@@ -31,7 +31,8 @@ fn setup_menu(mut commands: Commands, assets: Res<GameAssets>, level_list: Res<A
                 <for level in=levels>
                     <button c:menu_button on:press=move |ctx| {
                         let level = level.clone();
-                        let handle = ctx.load(&level);
+                        let url = format!("levels/{level}");
+                        let handle = ctx.load(&url);
                         ctx.commands().insert_resource(CurrentLevel(Some(handle)));
                         ctx.commands().insert_resource(NextState(Some(AppState::LoadingLevel)));
                     }>

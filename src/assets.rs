@@ -65,7 +65,7 @@ pub struct GameAssets {
 
     #[asset(path = "plants.pdef.json")]
     pub plants: Handle<PlantDefinitionsAsset>,
-    #[asset(path = "levels.lvl.list.json")]
+    #[asset(path = "levels/levels.lvl.list.json")]
     pub levels: Handle<LevelList>,
 }
 
