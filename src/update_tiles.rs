@@ -203,11 +203,12 @@ fn count_matching_neighbours<T>(
     tiles: &HashMap<Tile, T>,
     f: impl Fn(&T) -> bool,
 ) -> usize {
-    NEIGHBOURHOOD
-        .iter()
-        .map(|(x, y)| Tile(tile.0 + *x, tile.1 + *y))
-        .filter_map(|t| tiles.get(&t))
-        .fold(0, |value, tile| if f(tile) { value + 1 } else { value })
+    process_neighbours(
+        tile,
+        tiles,
+        0,
+        |value, tile| if f(tile) { value + 1 } else { value },
+    )
 }
 
 fn process_neighbours<T, R>(
