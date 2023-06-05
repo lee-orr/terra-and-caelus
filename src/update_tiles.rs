@@ -29,7 +29,7 @@ fn fertilize_tiles(
         let tile = &fertilize.0;
         if let Some((entity, _, backing)) = query.iter().find(|(_, t, _)| **t == *tile) {
             if *backing != Ground::Water {
-                commands.entity(entity).insert(Ground::Ground(60));
+                commands.entity(entity).insert(Ground::Soil(true));
             }
         }
     }
@@ -81,52 +81,53 @@ fn update_cell(
     plants: &[PlantDefinition],
     _name_to_id: &HashMap<String, usize>,
 ) -> Plant {
-    match (ground, plant) {
-        (Ground::Water, _) => Plant::Empty,
-        (Ground::Ground(nutrients), Plant::Empty) => {
-            let plant = plants.iter().enumerate().find(|(_id, p)| {
-                let id = p.id.as_str();
-                if p.spread_threshold <= *nutrients {
-                    if p.seeded {
-                        let count = count_matching_neighbours(tile, tiles, |(_, p)| {
-                            **p == Plant::Plant(id.to_string())
-                        });
-                        count > 0
-                    } else {
-                        true
-                    }
-                } else {
-                    false
-                }
-            });
-            match plant {
-                Some((_id, p)) => Plant::Plant(p.id.clone()),
-                None => Plant::Empty,
-            }
-        }
-        (Ground::Ground(nutrients), Plant::Plant(id)) => {
-            let id = id.as_str();
-            let plant = plants.iter().enumerate().find(|(_i, p)| {
-                let i = p.id.as_str();
-                if i != id && p.spread_threshold <= *nutrients {
-                    if p.seeded {
-                        let count = count_matching_neighbours(tile, tiles, |(_, p)| {
-                            **p == Plant::Plant(i.to_string())
-                        });
-                        count > 0
-                    } else {
-                        true
-                    }
-                } else {
-                    i == id && p.survive_threshold <= *nutrients
-                }
-            });
-            match plant {
-                Some((_id, p)) => Plant::Plant(p.id.clone()),
-                None => Plant::Empty,
-            }
-        }
-    }
+    plant.clone()
+    // match (ground, plant) {
+    //     (Ground::Water, _) => Plant::Empty,
+    //     (Ground::Ground(nutrients), Plant::Empty) => {
+    //         let plant = plants.iter().enumerate().find(|(_id, p)| {
+    //             let id = p.id.as_str();
+    //             if p.spread_threshold <= *nutrients {
+    //                 if p.seeded {
+    //                     let count = count_matching_neighbours(tile, tiles, |(_, p)| {
+    //                         **p == Plant::Plant(id.to_string())
+    //                     });
+    //                     count > 0
+    //                 } else {
+    //                     true
+    //                 }
+    //             } else {
+    //                 false
+    //             }
+    //         });
+    //         match plant {
+    //             Some((_id, p)) => Plant::Plant(p.id.clone()),
+    //             None => Plant::Empty,
+    //         }
+    //     }
+    //     (Ground::Ground(nutrients), Plant::Plant(id)) => {
+    //         let id = id.as_str();
+    //         let plant = plants.iter().enumerate().find(|(_i, p)| {
+    //             let i = p.id.as_str();
+    //             if i != id && p.spread_threshold <= *nutrients {
+    //                 if p.seeded {
+    //                     let count = count_matching_neighbours(tile, tiles, |(_, p)| {
+    //                         **p == Plant::Plant(i.to_string())
+    //                     });
+    //                     count > 0
+    //                 } else {
+    //                     true
+    //                 }
+    //             } else {
+    //                 i == id && p.survive_threshold <= *nutrients
+    //             }
+    //         });
+    //         match plant {
+    //             Some((_id, p)) => Plant::Plant(p.id.clone()),
+    //             None => Plant::Empty,
+    //         }
+    //     }
+    // }
 }
 
 fn update_backing(
@@ -137,35 +138,36 @@ fn update_backing(
     plants: &[PlantDefinition],
     name_to_id: &HashMap<String, usize>,
 ) -> Ground {
-    match ground {
-        Ground::Water => Ground::Water,
-        Ground::Ground(nutrients) => {
-            let available_nutrients = nutrients.saturating_sub(
-                plant
-                    .definition(plants, name_to_id)
-                    .map(|p| p.local_cost)
-                    .unwrap_or_default(),
-            );
-            let neighbour_nutrients =
-                process_neighbours(tile, tiles, available_nutrients, |value, (g, p)| {
-                    if let Ground::Ground(nutrients) = **g {
-                        let available_nutrients = nutrients.saturating_sub(
-                            p.definition(plants, name_to_id)
-                                .map(|p| p.neighbour_cost)
-                                .unwrap_or_default(),
-                        );
-                        value.saturating_add(available_nutrients)
-                    } else {
-                        value.saturating_add(16)
-                    }
-                });
+    ground.clone()
+    // match ground {
+    //     Ground::Water => Ground::Water,
+    //     Ground::Ground(nutrients) => {
+    //         let available_nutrients = nutrients.saturating_sub(
+    //             plant
+    //                 .definition(plants, name_to_id)
+    //                 .map(|p| p.local_cost)
+    //                 .unwrap_or_default(),
+    //         );
+    //         let neighbour_nutrients =
+    //             process_neighbours(tile, tiles, available_nutrients, |value, (g, p)| {
+    //                 if let Ground::Ground(nutrients) = **g {
+    //                     let available_nutrients = nutrients.saturating_sub(
+    //                         p.definition(plants, name_to_id)
+    //                             .map(|p| p.neighbour_cost)
+    //                             .unwrap_or_default(),
+    //                     );
+    //                     value.saturating_add(available_nutrients)
+    //                 } else {
+    //                     value.saturating_add(16)
+    //                 }
+    //             });
 
-            let mut nutrients = neighbour_nutrients.div(9);
+    //         let mut nutrients = neighbour_nutrients.div(9);
 
-            nutrients = nutrients.max(0).min(8);
-            Ground::Ground(nutrients)
-        }
-    }
+    //         nutrients = nutrients.max(0).min(8);
+    //         Ground::Ground(nutrients)
+    //     }
+    // }
 }
 
 const NEIGHBOURHOOD: [(i8, i8); 8] = [

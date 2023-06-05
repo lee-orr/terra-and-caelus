@@ -1,7 +1,9 @@
 ---
 name: Test Level
 tiles: |-
-  w w w w
-  w g g g:.moss:p
-  g:.flower g g g::t.flower
-  w g g w
+  g:.flower g g g g g g g
+  w w gf g g g g g
+  v v s g g g g:.other_flower g
+  v v sf g g g g g
+  v v r g g g g g
+  g:.moss:p w rf g g g g g
