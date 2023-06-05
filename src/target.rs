@@ -84,7 +84,16 @@ fn process_target(
             if target.0 == *tile {
                 let Plant::Plant(p) = plant else { continue; };
                 if p.as_str() == target.1 {
-                    commands.insert_resource(NextState(Some(AppState::Menu)));
+                    commands.insert_resource(NextState(Some(AppState::LevelComplete)));
+                    // match target.2 {
+                    //     Reward::CompleteLevel => {
+                    //         commands.insert_resource(NextState(Some(AppState::LevelComplete)));
+                    //     }
+                    //     Reward::Fertilize => todo!(),
+                    //     Reward::Burn => todo!(),
+                    //     Reward::Seed => todo!(),
+                    //     Reward::Drain => todo!(),
+                    // };
                 }
             }
         }

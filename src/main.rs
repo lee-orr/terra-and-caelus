@@ -5,6 +5,7 @@ mod credits;
 mod display;
 mod generate_tiles;
 mod level_asset;
+mod level_complete_screen;
 mod level_list;
 mod level_loading_screen;
 mod loading_screen;
@@ -26,6 +27,7 @@ use credits::CreditsPlugin;
 use display::TileDisplayPlugin;
 use generate_tiles::TileGeneratorPlugin;
 use level_asset::LevelAssetPlugin;
+use level_complete_screen::LevelCompleteScreenPlugin;
 use level_list::LevelListPlugin;
 use level_loading_screen::LevelLoadingScreenPlugin;
 use loading_screen::LoadingScreenPlugin;
@@ -77,6 +79,7 @@ fn main() {
         .add_plugin(MenuPlugin)
         .add_plugin(LevelListPlugin)
         .add_plugin(LevelLoadingScreenPlugin)
+        .add_plugin(LevelCompleteScreenPlugin)
         .add_plugin(CreditsPlugin)
         .add_plugin(TilePlugin)
         .add_plugin(TileGeneratorPlugin)

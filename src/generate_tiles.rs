@@ -23,7 +23,7 @@ impl Plugin for TileGeneratorPlugin {
                     in_state(AppState::InGame).and_then(on_event::<CurrentLevelHotReload>()),
                 ),
             )
-            .add_system(clear_level.in_schedule(OnExit(AppState::InGame)));
+            .add_system(clear_level.in_schedule(OnExit(AppState::LevelComplete)));
     }
 }
 

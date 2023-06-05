@@ -10,6 +10,17 @@
     font: "font.ttf";
 }
 
+.panel {
+    margin: 10px;
+    padding: 30px;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    flex-direction: column;
+    font: "font.ttf";
+    background-color: #309975;
+}
+
 .bg_color_base {
     background-color: #454D66;
 }
@@ -55,6 +66,10 @@
     font-size: 100;
     color: #59B366;
     font: "font.ttf";
+}
+
+.panel .header {
+    color: #F0EDB5;
 }
 
 .subheader {
@@ -129,6 +144,14 @@ button.menu_button:hover .button-foreground {
     margin: 40px;
 }
 
+.panel .menu_button {
+    background-color: #D9D973;
+}
+
+.panel .menu_button:hover {
+    background-color: #F0EDB5;
+}
+
 .small_menu_button {
     padding: 10px;
     margin: 20px;
@@ -157,6 +180,11 @@ button.menu_button:hover .button-foreground {
 }
 
 .secondary .content {
+    color: #309975;
+}
+
+
+.panel .content {
     color: #309975;
 }
 

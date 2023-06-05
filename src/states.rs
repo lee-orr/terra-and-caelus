@@ -8,5 +8,6 @@ pub enum AppState {
     LevelList,
     LoadingLevel,
     InGame,
+    LevelComplete,
     Credits,
 }

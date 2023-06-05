@@ -4,13 +4,13 @@
     "id": "moss",
     "allowed_grounds": "w,r,rf,g,gf",
     "spread": {
-      "AdjacentEmpty": 2
+      "AdjacentEmpty": 1
     }
   },
   {
     "asset": "flower.png",
     "id": "flower",
-    "allowed_grounds": "gf,rf",
+    "allowed_grounds": "gf,g,rf",
     "spread": {
       "AdjacentEmpty": 1
     },

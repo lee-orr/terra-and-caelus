@@ -63,9 +63,20 @@ fn setup_player(
     }
 }
 
-fn set_player_position(mut players: Query<(&Player, &mut Transform), Changed<Player>>) {
+fn set_player_position(
+    mut players: Query<(&Player, &mut Transform), Changed<Player>>,
+    mut camera: Query<&mut Transform, (With<Camera2d>, Without<Player>)>,
+) {
+    let mut position = None;
     for (p, mut t) in players.iter_mut() {
         t.translation = Vec3::new(p.0 as f32, p.1 as f32, 2.) * TILE_WORLD_SIZE;
+        position = Some(t.translation);
+    }
+
+    let Some(position) = position else {return;};
+
+    for mut c in camera.iter_mut() {
+        c.translation = position + Vec3::Z * 30.;
     }
 }
 
