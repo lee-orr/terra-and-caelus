@@ -4,6 +4,6 @@ tiles: |-
   gf:.flower gf g g g g g g
   w w gf g g g g gf
   v v s g g gf g:.other_flower gf
-  v v sf g g g g g
-  v v r g g g g::s.flower g::f.flower
+  v v sf g g g g g::t.flower
+  v v r g g g g::s.moss g::f.moss
   g:.moss:p gf rf g g g g::b.moss g::d.moss

@@ -3,8 +3,9 @@ use std::time::Duration;
 use bevy::{prelude::*, time::common_conditions::on_timer, utils::HashMap};
 
 use crate::{
+    control::{AvailablePowers, GainPower, Power, Seed, UsePower},
     states::AppState,
-    tile::{Fertalize, Ground, Plant, PlantDefinition, PlantDefinitions, SpreadType, Tile},
+    tile::{Ground, Plant, PlantDefinition, PlantDefinitions, SpreadType, Tile, FIRE_DURATION},
 };
 
 pub struct UpdateTilesPlugin;
@@ -16,20 +17,96 @@ impl Plugin for UpdateTilesPlugin {
                 in_state(AppState::InGame).and_then(on_timer(Duration::from_secs_f32(0.5))),
             ),
         )
-        .add_system(fertilize_tiles.in_set(OnUpdate(AppState::InGame)));
+        .add_system(use_powers.in_set(OnUpdate(AppState::InGame)));
     }
 }
 
-fn fertilize_tiles(
-    query: Query<(Entity, &Tile, &Ground)>,
-    mut fertilize: EventReader<Fertalize>,
+fn use_powers(
+    query: Query<(Entity, &Tile, &Plant, &Ground)>,
+    mut use_power: EventReader<UsePower>,
     mut commands: Commands,
+    mut powers: ResMut<AvailablePowers>,
+    mut seed: ResMut<Seed>,
+    plants: Res<PlantDefinitions>,
 ) {
-    for fertilize in fertilize.iter() {
-        let tile = &fertilize.0;
-        if let Some((entity, _, backing)) = query.iter().find(|(_, t, _)| **t == *tile) {
-            if *backing != Ground::Water {
-                commands.entity(entity).insert(Ground::Soil(true));
+    let tiles = query
+        .iter()
+        .map(|(_, t, c, b)| (*t, (b, c)))
+        .collect::<HashMap<_, _>>();
+
+    for UsePower(power, tile) in use_power.iter() {
+        if let Some((entity, t, plant, ground)) = query.iter().find(|(_, t, _, _)| **t == *tile) {
+            match power {
+                Power::Fertilize => {
+                    powers.adjust(power.clone(), -1);
+                    for (entity, tile, _, ground) in query.iter() {
+                        if tile.0.abs_diff(t.0) < 2 && tile.1.abs_diff(t.1) < 2 {
+                            match ground {
+                                Ground::Soil(false) => {
+                                    commands.entity(entity).insert(Ground::Soil(true));
+                                }
+                                Ground::Sand(false) => {
+                                    commands.entity(entity).insert(Ground::Sand(true));
+                                }
+                                Ground::Rock(false) => {
+                                    commands.entity(entity).insert(Ground::Rock(true));
+                                }
+                                _ => {}
+                            };
+                        }
+                    }
+                }
+                Power::Fire => {
+                    if !matches!(ground, Ground::Water)
+                        && !matches!(ground, Ground::Empty)
+                        && !matches!(plant, Plant::Empty)
+                    {
+                        commands.entity(entity).insert(Plant::Fire(FIRE_DURATION));
+                        powers.adjust(power.clone(), -1);
+                    }
+                }
+                Power::Seed => match plant {
+                    Plant::Plant(p) => {
+                        let Some(asset) = plants.name_to_id.get(p) else {continue;};
+                        let Some(asset) = plants.definitions.get(*asset) else { continue;};
+
+                        seed.0 = Some((p.clone(), asset.asset.clone()));
+                        powers.adjust(Power::Plant, 1);
+                        powers.adjust(power.clone(), -1);
+                    }
+                    _ => {}
+                },
+                Power::Drain => {
+                    powers.adjust(power.clone(), -1);
+                    for (entity, tile, _, ground) in query.iter() {
+                        if tile.0.abs_diff(t.0) < 2 && tile.1.abs_diff(t.1) < 2 {
+                            match ground {
+                                Ground::Soil(true) => {
+                                    commands.entity(entity).insert(Ground::Soil(false));
+                                }
+                                Ground::Sand(true) => {
+                                    commands.entity(entity).insert(Ground::Sand(false));
+                                }
+                                Ground::Rock(true) => {
+                                    commands.entity(entity).insert(Ground::Rock(false));
+                                }
+                                _ => {}
+                            };
+                        }
+                    }
+                }
+                Power::Plant => {
+                    let Some((plant_id, _)) = &seed.0 else { continue; };
+                    let Some(plant_id) = plants.name_to_id.get(plant_id) else {continue;};
+                    let Some(plant_definition) = plants.definitions.get(*plant_id) else { continue;};
+                    if can_survive(plant_definition, ground, plant, tile, &tiles) {
+                        commands
+                            .entity(entity)
+                            .insert(Plant::Plant(plant_definition.id.clone()));
+                        powers.adjust(power.clone(), -1);
+                        seed.0 = None;
+                    }
+                }
             }
         }
     }
@@ -69,9 +146,13 @@ fn update_tiles(
 fn can_survive(
     plant_definition: &PlantDefinition,
     ground: &Ground,
+    plant: &Plant,
     tile: &Tile,
     tiles: &HashMap<Tile, (&Ground, &Plant)>,
 ) -> bool {
+    if matches!(plant, Plant::Fire(_)) {
+        return false;
+    }
     if !plant_definition.allowed_grounds.0.contains(ground) {
         return false;
     }
@@ -104,7 +185,7 @@ fn can_spread(
     tile: &Tile,
     tiles: &HashMap<Tile, (&Ground, &Plant)>,
 ) -> bool {
-    if !can_survive(plant_definition, ground, tile, tiles) {
+    if !can_survive(plant_definition, ground, plant, tile, tiles) {
         return false;
     }
 
@@ -155,7 +236,20 @@ fn update_plant(
     tiles: &HashMap<Tile, (&Ground, &Plant)>,
     plants: &[PlantDefinition],
 ) -> Plant {
+    if let Plant::Fire(u) = plant {
+        let remaining = u.saturating_sub(1);
+        if remaining == 0 {
+            return Plant::Empty;
+        } else {
+            return Plant::Fire(remaining);
+        }
+    }
     let current_plant = if let Plant::Plant(i) = plant {
+        if !matches!(ground, Ground::Water)
+            && count_matching_neighbours(tile, tiles, |(_, p)| matches!(p, Plant::Fire(_))) > 0
+        {
+            return Plant::Fire(FIRE_DURATION);
+        }
         i.clone()
     } else {
         "".to_string()
@@ -166,7 +260,7 @@ fn update_plant(
         if i != current_plant {
             can_spread(p, plant, ground, tile, tiles)
         } else {
-            can_survive(p, ground, tile, tiles)
+            can_survive(p, ground, plant, tile, tiles)
         }
     });
 
@@ -178,16 +272,42 @@ fn update_plant(
 
 fn update_backing(
     ground: &Ground,
-    _plant: &Plant,
+    plant: &Plant,
     _tile: &Tile,
     _tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Ground, &Plant)>,
     _plants: &[PlantDefinition],
     _name_to_id: &HashMap<String, usize>,
 ) -> Ground {
+    if matches!(plant, Plant::Fire(_)) {
+        match ground {
+            Ground::Soil(false) => {
+                return Ground::Soil(true);
+            }
+            Ground::Sand(false) => {
+                return Ground::Sand(true);
+            }
+            Ground::Rock(false) => {
+                return Ground::Rock(true);
+            }
+            _ => {}
+        }
+    }
     *ground
 }
 
 const NEIGHBOURHOOD: [(i8, i8); 8] = [
+    (-1, -1),
+    (0, -1),
+    (1, -1),
+    (-1, 0),
+    (1, 0),
+    (-1, 1),
+    (0, 1),
+    (1, 1),
+];
+
+const INCLUSIVE_NEIGHBOURHOOD: [(i8, i8); 9] = [
+    (0, 0),
     (-1, -1),
     (0, -1),
     (1, -1),
@@ -218,6 +338,19 @@ fn process_neighbours<T, R>(
     f: impl Fn(R, &T) -> R,
 ) -> R {
     NEIGHBOURHOOD
+        .iter()
+        .map(|(x, y)| Tile(tile.0 + *x, tile.1 + *y))
+        .filter_map(|t| tiles.get(&t))
+        .fold(initial, f)
+}
+
+fn process_inclusive<T, R>(
+    tile: &Tile,
+    tiles: &HashMap<Tile, T>,
+    initial: R,
+    f: impl Fn(R, &T) -> R,
+) -> R {
+    INCLUSIVE_NEIGHBOURHOOD
         .iter()
         .map(|(x, y)| Tile(tile.0 + *x, tile.1 + *y))
         .filter_map(|t| tiles.get(&t))

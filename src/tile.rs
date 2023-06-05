@@ -75,7 +75,10 @@ pub enum Plant {
     #[default]
     Empty,
     Plant(String),
+    Fire(usize),
 }
+
+pub const FIRE_DURATION: usize = 3;
 
 impl Plant {
     #[allow(dead_code)]
@@ -87,6 +90,7 @@ impl Plant {
         match self {
             Plant::Empty => None,
             Plant::Plant(id) => name_to_id.get(id).and_then(|id| plants.get(*id)),
+            Plant::Fire(_) => None,
         }
     }
 }
@@ -145,9 +149,6 @@ impl From<Vec2> for Tile {
         Tile(value.x.floor() as i8, value.y.floor() as i8)
     }
 }
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Fertalize(pub Tile);
 
 pub const TILE_WORLD_SIZE: f32 = 80.;
 
@@ -286,8 +287,7 @@ pub struct TilePlugin;
 
 impl Plugin for TilePlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<Fertalize>()
-            .register_type::<PlantDefinition>()
+        app.register_type::<PlantDefinition>()
             .register_type::<PlantDefinitions>()
             .add_plugin(JsonAssetPlugin::<PlantDefinitionsAsset>::new(&[
                 "pdef.json",

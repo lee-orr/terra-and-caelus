@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use crate::{
     assets::GameAssets,
     states::AppState,
-    tile::{Ground, Plant, PlantDefinitions, TileAsset, TILE_WORLD_SIZE},
+    tile::{Ground, Plant, PlantDefinitions, TileAsset, FIRE_DURATION, TILE_WORLD_SIZE},
 };
 
 pub struct TileDisplayPlugin;
@@ -67,6 +67,15 @@ fn get_tile_image(
                 .assets
                 .get(p.as_str())
                 .map(|TileAsset(asset, c)| (asset.clone(), *c)),
+            Plant::Fire(remaining) => Some((
+                assets.fire.clone(),
+                Color::rgba(
+                    1.,
+                    1.,
+                    1.,
+                    ((*remaining as f32) / (FIRE_DURATION as f32)).clamp(0., 1.),
+                ),
+            )),
         },
     )
 }

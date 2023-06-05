@@ -5,7 +5,7 @@ use crate::{
     assets::GameAssets,
     generate_tiles::LevelLoaded,
     states::AppState,
-    tile::{Fertalize, Ground, Plant, Tile, TILE_WORLD_SIZE},
+    tile::{Ground, Plant, Tile, TILE_WORLD_SIZE},
 };
 
 pub struct ControlPlugin;
@@ -13,6 +13,7 @@ pub struct ControlPlugin;
 impl Plugin for ControlPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<AvailablePowers>()
+            .init_resource::<Seed>()
             .add_event::<GainPower>()
             .add_event::<UsePower>()
             .add_plugin(InputManagerPlugin::<Action>::default())
@@ -36,19 +37,23 @@ impl Plugin for ControlPlugin {
 #[derive(Component)]
 pub struct Player(pub i8, pub i8);
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct GainPower(pub Power);
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub struct UsePower(pub Power, pub Tile);
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
 pub enum Power {
     Fertilize,
     Fire,
     Seed,
     Drain,
+    Plant,
 }
+
+#[derive(Resource, Default, Debug, Clone, Hash, Eq, PartialEq)]
+pub struct Seed(pub Option<(String, String)>);
 
 impl ToString for Power {
     fn to_string(&self) -> String {
@@ -57,6 +62,7 @@ impl ToString for Power {
             Power::Fire => "Fire",
             Power::Seed => "Seed",
             Power::Drain => "Drain",
+            Power::Plant => "Plant",
         }
         .to_string()
     }
@@ -68,12 +74,16 @@ impl Power {
         format!("card {name}")
     }
 
-    pub fn ui_image(&self) -> String {
+    pub fn ui_image(&self, seed: &Seed) -> String {
         match self {
             Power::Fertilize => "card_fertilize.png",
             Power::Fire => "card_fire.png",
             Power::Seed => "card_seed.png",
             Power::Drain => "card_drain.png",
+            Power::Plant => match &seed.0 {
+                Some((_, url)) => url.as_str(),
+                None => "goal_pillar.png",
+            },
         }
         .to_string()
     }
@@ -84,6 +94,7 @@ impl Power {
             Power::Fire => "X",
             Power::Seed => "C",
             Power::Drain => "V",
+            Power::Plant => "B",
         }
         .to_string()
     }
@@ -94,12 +105,36 @@ pub struct AvailablePowers(pub HashMap<Power, usize>);
 
 impl AvailablePowers {
     fn set_value(&mut self, p: Power, v: usize) {
-        self.0.insert(p, v);
+        if v != 0 {
+            self.0.insert(p, v);
+        } else {
+            self.0.remove(&p);
+        }
+    }
+
+    pub fn adjust(&mut self, p: Power, val: i32) {
+        match val.cmp(&0) {
+            std::cmp::Ordering::Greater => {
+                let v = self.0.get(&p).cloned().unwrap_or_default();
+                self.0.insert(p, v + val as usize);
+            }
+            std::cmp::Ordering::Less => {
+                let v = self.0.get(&p).cloned().unwrap_or_default();
+                if v > 1 {
+                    self.0
+                        .insert(p, v.saturating_sub(val.unsigned_abs() as usize));
+                } else {
+                    self.0.remove(&p);
+                }
+            }
+            std::cmp::Ordering::Equal => {}
+        };
     }
 }
 
 fn reset_available_powers(mut commands: Commands) {
     commands.insert_resource(AvailablePowers::default());
+    commands.insert_resource(Seed::default());
 }
 
 fn setup_player(
@@ -137,6 +172,7 @@ fn setup_player(
                     (KeyCode::C.into(), Action::Seed),
                     (KeyCode::V.into(), Action::Drain),
                     (KeyCode::X.into(), Action::Fire),
+                    (KeyCode::B.into(), Action::Plant),
                 ]),
             },
         ));
@@ -170,13 +206,14 @@ enum Action {
     Fire,
     Seed,
     Drain,
+    Plant,
 }
 
 fn move_player(
     mut player: Query<(&mut Player, &ActionState<Action>)>,
     query: Query<(&Tile, &Ground, &Plant)>,
     mut use_power: EventWriter<UsePower>,
-    mut powers: ResMut<AvailablePowers>,
+    powers: Res<AvailablePowers>,
 ) {
     for (mut p, a) in player.iter_mut() {
         let mut target = Tile(p.0, p.1);
@@ -201,33 +238,36 @@ fn move_player(
         }
 
         if a.just_pressed(Action::Fertilize) {
-            try_use_power(Power::Fertilize, &mut powers, &mut use_power, &p);
+            try_use_power(Power::Fertilize, &powers, &mut use_power, &p);
         }
 
         if a.just_pressed(Action::Drain) {
-            try_use_power(Power::Drain, &mut powers, &mut use_power, &p);
+            try_use_power(Power::Drain, &powers, &mut use_power, &p);
         }
 
         if a.just_pressed(Action::Seed) {
-            try_use_power(Power::Seed, &mut powers, &mut use_power, &p);
+            try_use_power(Power::Seed, &powers, &mut use_power, &p);
         }
 
         if a.just_pressed(Action::Fire) {
-            try_use_power(Power::Fire, &mut powers, &mut use_power, &p);
+            try_use_power(Power::Fire, &powers, &mut use_power, &p);
+        }
+
+        if a.just_pressed(Action::Plant) {
+            try_use_power(Power::Plant, &powers, &mut use_power, &p);
         }
     }
 }
 
 fn try_use_power(
     power: Power,
-    powers: &mut ResMut<AvailablePowers>,
+    powers: &Res<AvailablePowers>,
     use_power: &mut EventWriter<UsePower>,
     p: &Mut<Player>,
 ) {
     let Some(available) = powers.0.get(&power) else {return;};
     let available = *available;
     if available > 0 {
-        powers.set_value(power.clone(), available.saturating_sub(1));
         use_power.send(UsePower(power, Tile(p.0, p.1)));
     }
 }
@@ -235,6 +275,6 @@ fn try_use_power(
 fn gain_power(mut gain_power: EventReader<GainPower>, mut powers: ResMut<AvailablePowers>) {
     for GainPower(p) in gain_power.iter() {
         let available = powers.0.get(p).copied().unwrap_or_default();
-        powers.set_value(*p, available + 1);
+        powers.set_value(p.clone(), available + 1);
     }
 }

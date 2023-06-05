@@ -1,4 +1,8 @@
-use crate::{assets::GameAssets, control::AvailablePowers, states::AppState};
+use crate::{
+    assets::GameAssets,
+    control::{AvailablePowers, Seed},
+    states::AppState,
+};
 use belly::{core::ess::Styles, prelude::*};
 use bevy::prelude::*;
 
@@ -23,6 +27,7 @@ fn setup_menu(
     assets: Res<GameAssets>,
     mut styles: ResMut<Styles>,
     powers: Res<AvailablePowers>,
+    seed: Res<Seed>,
     query: Query<Entity, With<MenuItem>>,
 ) {
     if !powers.is_changed() {
@@ -39,8 +44,9 @@ fn setup_menu(
     let powers = powers
         .0
         .iter()
-        .filter_map(|(p, v)| if *v > 0 { Some((*p, *v)) } else { None })
+        .filter_map(|(p, v)| if *v > 0 { Some((p.clone(), *v)) } else { None })
         .collect::<Vec<_>>();
+    let seed = seed.clone();
 
     commands.add(eml! {
         <body {ui} c:in_game>
@@ -55,7 +61,7 @@ fn setup_menu(
                     </div>
                     <for value in=powers>
                         <div class={value.0.ui_class_name()}>
-                            <img c:card-image src={value.0.ui_image()}></img>
+                            <img c:card-image src={value.0.ui_image(&seed)}></img>
                             <span c:label>{value.0.to_string()}</span>
                             <span c:available>{value.1.to_string()}</span>
                             <span c:key_bind>{value.0.key_binding()}</span>
