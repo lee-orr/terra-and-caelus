@@ -67,6 +67,9 @@ pub struct GameAssets {
     pub plants: Handle<PlantDefinitionsAsset>,
     #[asset(path = "levels/levels.lvl.list.json")]
     pub levels: Handle<LevelList>,
+
+    #[asset(path = "terra.mp3")]
+    pub music: Handle<AudioSource>,
 }
 
 impl FromWorld for PlantDefinitions {

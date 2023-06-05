@@ -40,6 +40,7 @@ fn generate_tiles(
     current_level: Res<CurrentLevel>,
     level_assets: Res<Assets<LevelAsset>>,
     mut loaded: EventWriter<LevelLoaded>,
+    audio: Res<Audio>,
 ) {
     for entity in existing_levels.iter() {
         commands.entity(entity).despawn_recursive();
