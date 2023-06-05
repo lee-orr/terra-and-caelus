@@ -12,7 +12,7 @@ use serde::{
     Deserialize, Deserializer, Serialize,
 };
 
-use crate::assets::GameAssets;
+use crate::{assets::GameAssets, target::Reward};
 
 #[derive(
     Component,
@@ -107,7 +107,7 @@ impl FromStr for Plant {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum GameEntity {
     Player,
-    Target(String),
+    Target(String, Reward),
 }
 
 impl FromStr for GameEntity {
@@ -118,7 +118,19 @@ impl FromStr for GameEntity {
             Ok(GameEntity::Player)
         } else if s.starts_with("t.") {
             let s = s.trim_start_matches("t.");
-            Ok(GameEntity::Target(s.to_string()))
+            Ok(GameEntity::Target(s.to_string(), Reward::CompleteLevel))
+        } else if s.starts_with("f.") {
+            let s = s.trim_start_matches("f.");
+            Ok(GameEntity::Target(s.to_string(), Reward::Fertilize))
+        } else if s.starts_with("d.") {
+            let s = s.trim_start_matches("d.");
+            Ok(GameEntity::Target(s.to_string(), Reward::Drain))
+        } else if s.starts_with("b.") {
+            let s = s.trim_start_matches("b.");
+            Ok(GameEntity::Target(s.to_string(), Reward::Burn))
+        } else if s.starts_with("s.") {
+            let s = s.trim_start_matches("s.");
+            Ok(GameEntity::Target(s.to_string(), Reward::Seed))
         } else {
             Err(anyhow::Error::msg("No Entity"))
         }
@@ -137,7 +149,7 @@ impl From<Vec2> for Tile {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Fertalize(pub Tile);
 
-pub const TILE_WORLD_SIZE: f32 = 40.;
+pub const TILE_WORLD_SIZE: f32 = 80.;
 
 #[derive(
     Debug, Clone, Reflect, FromReflect, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,

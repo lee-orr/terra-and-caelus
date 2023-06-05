@@ -4,7 +4,7 @@ use crate::{
     control::Player,
     level_asset::{CurrentLevel, CurrentLevelHotReload, LevelAsset},
     states::AppState,
-    target::{Reward, Target},
+    target::Target,
     tile::{GameEntity, TILE_WORLD_SIZE},
 };
 
@@ -76,9 +76,7 @@ fn generate_tiles(
                 for ge in game_entities.iter() {
                     match ge {
                         GameEntity::Player => p.spawn((Player(tile.0, tile.1),)),
-                        GameEntity::Target(t) => {
-                            p.spawn(Target(*tile, t.clone(), Reward::CompleteLevel))
-                        }
+                        GameEntity::Target(t, r) => p.spawn(Target(*tile, t.clone(), *r)),
                     };
                 }
             }

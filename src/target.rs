@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     assets::GameAssets,
@@ -15,9 +16,13 @@ impl Plugin for TargetPlugin {
     }
 }
 
-#[derive(Component, Debug, Clone, Copy)]
+#[derive(Component, Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum Reward {
     CompleteLevel,
+    Fertilize,
+    Burn,
+    Seed,
+    Drain,
 }
 
 #[derive(Component, Debug, Clone)]
@@ -40,7 +45,14 @@ fn setup_target(
                     custom_size: Some(Vec2::new(TILE_WORLD_SIZE, TILE_WORLD_SIZE)),
                     ..default()
                 },
-                texture: assets.goal.clone(),
+                texture: match target.2 {
+                    Reward::CompleteLevel => &assets.goal,
+                    Reward::Fertilize => &assets.shrine_fertilize,
+                    Reward::Burn => &assets.shrine_fire,
+                    Reward::Seed => &assets.shrine_seed,
+                    Reward::Drain => &assets.shrine_drain,
+                }
+                .clone(),
                 ..default()
             })
             .with_children(|p| {
