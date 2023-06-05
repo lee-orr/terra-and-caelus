@@ -314,6 +314,14 @@ button.menu_button:hover .button-foreground {
     padding: 5px;
 }
 
+.desc_header .exit_button:hover {
+    background-color: #59B366;
+}
+
+button.exit_button:hover .button-foreground {
+    background-color: transparent !important;
+}
+
 .desc_header .content {
     font-size: 12;
 }
