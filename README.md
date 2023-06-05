@@ -34,7 +34,7 @@ Procedural puzzles around manipulating plant growth via powers that transform th
   - [ ] Drain a tile
   - [ ] Start a fire
   - [ ] Wind - blow seeds across a gap
-- [ ] Adjust Simulation Rules for Clarity
+- [x] Adjust Simulation Rules for Clarity
   Ground Cover
   - [ ] Grass - spreads to neighbouring fertile tiles soil, but not to drained tiles or sand or through other plants
   - [ ] Creepying Thyme - spreads to neighbouring fertile tiles & sand, but not through other plants

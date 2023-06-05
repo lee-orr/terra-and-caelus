@@ -19,6 +19,24 @@ pub struct GameAssets {
     #[asset(path = "goal_pillar.png")]
     pub goal: Handle<Image>,
 
+    #[asset(path = "card_drain.png")]
+    pub card_drain: Handle<Image>,
+    #[asset(path = "card_fertilize.png")]
+    pub card_fertilize: Handle<Image>,
+    #[asset(path = "card_fire.png")]
+    pub card_fire: Handle<Image>,
+    #[asset(path = "card_seed.png")]
+    pub card_seed: Handle<Image>,
+
+    #[asset(path = "shrine_drain.png")]
+    pub shrine_drain: Handle<Image>,
+    #[asset(path = "shrine_fertilize.png")]
+    pub shrine_fertilize: Handle<Image>,
+    #[asset(path = "shrine_fire.png")]
+    pub shrine_fire: Handle<Image>,
+    #[asset(path = "shrine_seed.png")]
+    pub shrine_seed: Handle<Image>,
+
     #[asset(path = "water.png")]
     pub water: Handle<Image>,
     #[asset(path = "void.png")]

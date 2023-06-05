@@ -78,6 +78,7 @@ pub enum Plant {
 }
 
 impl Plant {
+    #[allow(dead_code)]
     pub fn definition<'a>(
         &self,
         plants: &'a [PlantDefinition],
