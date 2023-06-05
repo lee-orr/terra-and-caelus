@@ -3,7 +3,7 @@ use std::time::Duration;
 use bevy::{prelude::*, time::common_conditions::on_timer, utils::HashMap};
 
 use crate::{
-    control::{AvailablePowers, GainPower, Power, Seed, UsePower},
+    control::{AvailablePowers, Power, Seed, UsePower},
     states::AppState,
     tile::{Ground, Plant, PlantDefinition, PlantDefinitions, SpreadType, Tile, FIRE_DURATION},
 };
@@ -65,8 +65,8 @@ fn use_powers(
                         powers.adjust(power.clone(), -1);
                     }
                 }
-                Power::Seed => match plant {
-                    Plant::Plant(p) => {
+                Power::Seed => {
+                    if let Plant::Plant(p) = plant {
                         let Some(asset) = plants.name_to_id.get(p) else {continue;};
                         let Some(asset) = plants.definitions.get(*asset) else { continue;};
 
@@ -74,8 +74,7 @@ fn use_powers(
                         powers.adjust(Power::Plant, 1);
                         powers.adjust(power.clone(), -1);
                     }
-                    _ => {}
-                },
+                }
                 Power::Drain => {
                     powers.adjust(power.clone(), -1);
                     for (entity, tile, _, ground) in query.iter() {
@@ -306,18 +305,6 @@ const NEIGHBOURHOOD: [(i8, i8); 8] = [
     (1, 1),
 ];
 
-const INCLUSIVE_NEIGHBOURHOOD: [(i8, i8); 9] = [
-    (0, 0),
-    (-1, -1),
-    (0, -1),
-    (1, -1),
-    (-1, 0),
-    (1, 0),
-    (-1, 1),
-    (0, 1),
-    (1, 1),
-];
-
 fn count_matching_neighbours<T>(
     tile: &Tile,
     tiles: &HashMap<Tile, T>,
@@ -338,19 +325,6 @@ fn process_neighbours<T, R>(
     f: impl Fn(R, &T) -> R,
 ) -> R {
     NEIGHBOURHOOD
-        .iter()
-        .map(|(x, y)| Tile(tile.0 + *x, tile.1 + *y))
-        .filter_map(|t| tiles.get(&t))
-        .fold(initial, f)
-}
-
-fn process_inclusive<T, R>(
-    tile: &Tile,
-    tiles: &HashMap<Tile, T>,
-    initial: R,
-    f: impl Fn(R, &T) -> R,
-) -> R {
-    INCLUSIVE_NEIGHBOURHOOD
         .iter()
         .map(|(x, y)| Tile(tile.0 + *x, tile.1 + *y))
         .filter_map(|t| tiles.get(&t))
