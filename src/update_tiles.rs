@@ -67,10 +67,13 @@ fn use_powers(
                 }
                 Power::Seed => {
                     if let Plant::Plant(p) = plant {
+                        info!("Getting Seed {p}");
                         let Some(asset) = plants.name_to_id.get(p) else {continue;};
+                        info!("ID: {asset}");
                         let Some(asset) = plants.definitions.get(*asset) else { continue;};
+                        info!("Asset: {asset:?}");
 
-                        seed.0 = Some((p.clone(), asset.asset.clone()));
+                        seed.0 = Some((p.clone(), asset.asset.clone(), asset.color));
                         powers.adjust(Power::Plant, 1);
                         powers.adjust(power.clone(), -1);
                     }
@@ -95,7 +98,7 @@ fn use_powers(
                     }
                 }
                 Power::Plant => {
-                    let Some((plant_id, _)) = &seed.0 else { continue; };
+                    let Some((plant_id, _, _)) = &seed.0 else { continue; };
                     let Some(plant_id) = plants.name_to_id.get(plant_id) else {continue;};
                     let Some(plant_definition) = plants.definitions.get(*plant_id) else { continue;};
                     if can_survive(plant_definition, ground, plant, tile, &tiles) {

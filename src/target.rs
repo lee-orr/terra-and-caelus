@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     assets::GameAssets,
-    control::{GainPower, Power},
+    control::{GainPower, Player, Power},
     states::AppState,
     tile::{Ground, Plant, PlantDefinitions, Tile, TileAsset, TILE_WORLD_SIZE},
 };
@@ -79,26 +79,30 @@ fn setup_target(
 }
 
 fn process_target(
+    players: Query<&Player>,
     targets: Query<(Entity, &Target), Without<UsedTarget>>,
     tiles: Query<(&Tile, &Ground, &Plant)>,
     mut commands: Commands,
     mut gain_power: EventWriter<GainPower>,
 ) {
+    let Ok(player) = players.get_single() else { return; };
     for (tile, _, plant) in tiles.iter() {
-        for (e, target) in targets.iter() {
-            if target.0 == *tile {
-                let Plant::Plant(p) = plant else { continue; };
-                if p.as_str() == target.1 {
-                    commands.entity(e).insert(UsedTarget).despawn_descendants();
-                    match target.2 {
-                        Reward::CompleteLevel => {
-                            commands.insert_resource(NextState(Some(AppState::LevelComplete)));
-                        }
-                        Reward::Fertilize => gain_power.send(GainPower(Power::Fertilize)),
-                        Reward::Burn => gain_power.send(GainPower(Power::Fire)),
-                        Reward::Seed => gain_power.send(GainPower(Power::Seed)),
-                        Reward::Drain => gain_power.send(GainPower(Power::Drain)),
-                    };
+        if tile.0 == player.0 && tile.1 == player.1 {
+            for (e, target) in targets.iter() {
+                if target.0 == *tile {
+                    let Plant::Plant(p) = plant else { continue; };
+                    if p.as_str() == target.1 {
+                        commands.entity(e).insert(UsedTarget).despawn_descendants();
+                        match target.2 {
+                            Reward::CompleteLevel => {
+                                commands.insert_resource(NextState(Some(AppState::LevelComplete)));
+                            }
+                            Reward::Fertilize => gain_power.send(GainPower(Power::Fertilize)),
+                            Reward::Burn => gain_power.send(GainPower(Power::Fire)),
+                            Reward::Seed => gain_power.send(GainPower(Power::Seed)),
+                            Reward::Drain => gain_power.send(GainPower(Power::Drain)),
+                        };
+                    }
                 }
             }
         }

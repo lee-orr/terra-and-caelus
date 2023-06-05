@@ -102,6 +102,8 @@ impl FromStr for Plant {
         if s.starts_with('.') {
             let s = s.trim_start_matches('.');
             Ok(Plant::Plant(s.to_string()))
+        } else if s == "f" {
+            Ok(Plant::Fire(FIRE_DURATION))
         } else {
             Ok(Plant::Empty)
         }
@@ -260,24 +262,24 @@ impl From<(PlantDefinitionsAsset, AssetServer)> for PlantDefinitions {
     fn from((p, server): (PlantDefinitionsAsset, AssetServer)) -> Self {
         let mut p =
             p.0.iter()
-                .enumerate()
-                .map(|(id, plant)| {
+                .map(|plant| {
                     let plant = (*plant).clone();
-                    (id, plant.id.clone(), plant)
+                    (plant.id.clone(), plant)
                 })
                 .collect::<Vec<_>>();
 
-        p.sort_by(|a, b| b.2.partial_cmp(&a.2).unwrap_or(std::cmp::Ordering::Equal));
+        p.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
 
         Self {
-            definitions: p.iter().map(|(_, _, p)| p.clone()).collect(),
+            definitions: p.iter().map(|(_, p)| p.clone()).collect(),
             name_to_id: p
                 .iter()
-                .map(|(id, name, _)| (name.to_string(), *id))
+                .enumerate()
+                .map(|(id, (name, _))| (name.to_string(), id))
                 .collect(),
             assets: p
                 .iter()
-                .map(|(_, _, p)| (p.id.clone(), TileAsset(server.load(&p.asset), p.color)))
+                .map(|(_, p)| (p.id.clone(), TileAsset(server.load(&p.asset), p.color)))
                 .collect(),
         }
     }

@@ -1,0 +1,19 @@
+---
+name: A Call
+description: |-
+  You awaken to the sound
+  of a begging voice
+
+    Oh spirit of life,
+    grant me a flower
+    for my love
+
+  Go to the seed shrine
+  Collect the seeds
+  and plant them at the
+  offering stone
+
+tiles: |-
+  g gf g g
+  gf::s.grass gf gf gf:.grass
+  g:.grass:p g:.flower g gf::t.flower

@@ -27,12 +27,12 @@ Procedural puzzles around manipulating plant growth via powers that transform th
 - [x] Load Hand Written Levels
 - [x] Create & Control Player
 - [x] Get Goals Working
-- [ ] Create Powers
-  - [ ] Fertilize a tile
-  - [ ] Plant a seed
+- [x] Create Powers
+  - [x] Fertilize a tile
+  - [x] Plant a seed
   - [ ] Teleport Player
-  - [ ] Drain a tile
-  - [ ] Start a fire
+  - [x] Drain a tile
+  - [x] Start a fire
   - [ ] Wind - blow seeds across a gap
 - [x] Adjust Simulation Rules for Clarity
   Ground Cover
@@ -44,6 +44,7 @@ Procedural puzzles around manipulating plant growth via powers that transform th
   Weeds
   - [ ] Crabgrass - grows well in under-fertilized land, spread well, clears if too fertilized
   - [ ] Dandelion - spreads by wind, grows quickly, cleared if drained
+- [ ] Build Levels
 - [ ] Music & SFX
 - [ ] Generate Levels*
 

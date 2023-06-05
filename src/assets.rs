@@ -87,8 +87,10 @@ impl FromWorld for PlantDefinitions {
             .cloned()
             .unwrap_or_default();
 
-        info!("Plant Definitions: {p:?}");
+        info!("Plant Definitions Asset: {p:#?}");
 
-        (p, server.clone()).into()
+        let definitions = (p, server.clone()).into();
+        info!("Plant Definitions: {definitions:#?}");
+        definitions
     }
 }

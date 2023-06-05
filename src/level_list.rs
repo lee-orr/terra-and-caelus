@@ -29,7 +29,7 @@ fn setup_menu(mut commands: Commands, assets: Res<GameAssets>, level_list: Res<A
         <body {ui} c:root>
             <div c:header>"Terra and Caelus"</div>
                 <for level in=levels>
-                    <button c:menu_button on:press=move |ctx| {
+                    <button c:menu_button c:small_menu_button on:press=move |ctx| {
                         let level = level.clone();
                         let url = format!("levels/{level}");
                         let handle = ctx.load(&url);

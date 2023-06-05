@@ -221,6 +221,7 @@ button.menu_button:hover .button-foreground {
     left: 0px;
     right:  0px;
     bottom: 0px;
+    
 }
 
 .card .label {

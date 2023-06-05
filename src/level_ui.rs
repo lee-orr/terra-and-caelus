@@ -1,7 +1,7 @@
 use crate::{
     assets::GameAssets,
     control::{AvailablePowers, Seed},
-    level_asset::{CurrentLevel, LevelAsset},
+    level_asset::{CurrentLevel, CurrentLevelHotReload, LevelAsset},
     states::AppState,
 };
 use belly::{core::ess::Styles, prelude::*};
@@ -68,7 +68,10 @@ fn setup_menu(
                 <div c:description>
                     <div c:desc_header>
                         <div c:level_header>{level_header}</div>
+                        <div>
+                        <button c:exit_button on:press=|ctx| ctx.send_event(CurrentLevelHotReload)><span c:content>"Restart"</span></button>
                         <button c:exit_button on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::Menu)))><span c:content>"Exit"</span></button>
+                        </div>
                     </div>
                     <for dsc in=level_description>
                         <div c:level_description>{dsc}</div>
@@ -84,7 +87,7 @@ fn setup_menu(
                     </div>
                     <for value in=powers>
                         <div class={value.0.ui_class_name()}>
-                            <img c:card-image src={value.0.ui_image(&seed)}></img>
+                            <img c:card-image src={value.0.ui_image(&seed).0}></img>
                             <span c:label>{value.0.to_string()}</span>
                             <span c:available>{value.1.to_string()}</span>
                             <span c:key_bind>{value.0.key_binding()}</span>

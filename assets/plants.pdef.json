@@ -2,7 +2,8 @@
   {
     "asset": "moss.png",
     "id": "moss",
-    "allowed_grounds": "w,r,rf,g,gf",
+    "allowed_grounds": "rf",
+    "required_neighbour_grounds": "w",
     "spread": {
       "AdjacentEmpty": 1
     }
@@ -32,5 +33,30 @@
       "AdjacentEmpty": 1
     },
     "aggressiveness": 3
+  },
+  {
+    "asset": "grass.png",
+    "id": "grass",
+    "allowed_grounds": "gf,sf",
+    "spread": {
+      "AdjacentEmpty": 1
+    }
+  },
+  {
+    "asset": "thyme.png",
+    "id": "thyme",
+    "allowed_grounds": "gf,g,sf,s",
+    "spread": {
+      "AdjacentAggresive": 1
+    },
+    "aggressiveness": 4
+  },
+  {
+    "asset": "hibiscus.png",
+    "id": "hibiscus",
+    "allowed_grounds": "gf,rf",
+    "spread": {
+      "AdjacentEmpty": 1
+    }
   }
 ]

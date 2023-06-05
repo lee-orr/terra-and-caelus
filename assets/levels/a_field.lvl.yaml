@@ -1,0 +1,19 @@
+---
+name: A Field
+description: |-
+  A field felled by flame
+  leaves fertile ground for all
+  if but a shoot could reach it
+
+  gather nutrients
+  at the shrine
+  and fertilize the path
+  allowing grass to spread
+  untamed
+  and join them at
+  the offering stone
+
+tiles: |-
+  gf gf::p g g g:.grass
+  gf::f.grass gf g g:.grass gf:.grass
+  g:.grass g g g:.grass g:f:t.grass

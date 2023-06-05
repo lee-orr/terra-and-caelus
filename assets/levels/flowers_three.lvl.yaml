@@ -1,0 +1,15 @@
+---
+name: Flowers Three
+description: |-
+  another plea
+  for flowers three
+  sails across the land
+tiles: |-
+  g gf::s.grass gf gf:.flower g g
+  g g gf g g g
+  gf g g g g g:.flower
+  gf::p:f.grass gf g g g gf:.grass
+  g:.grass:f.flower g  g g g:.grass g:.grass:t.flower
+  r g r r gf g
+  gf::s.grass gf g g g g
+  gf::f.flower gf gf gf:.flower g gf::s.grass

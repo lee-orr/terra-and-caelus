@@ -52,8 +52,8 @@ pub enum Power {
     Plant,
 }
 
-#[derive(Resource, Default, Debug, Clone, Hash, Eq, PartialEq)]
-pub struct Seed(pub Option<(String, String)>);
+#[derive(Resource, Default, Debug, Clone, PartialEq)]
+pub struct Seed(pub Option<(String, String, Color)>);
 
 impl ToString for Power {
     fn to_string(&self) -> String {
@@ -74,18 +74,17 @@ impl Power {
         format!("card {name}")
     }
 
-    pub fn ui_image(&self, seed: &Seed) -> String {
+    pub fn ui_image(&self, seed: &Seed) -> (String, Option<Color>) {
         match self {
-            Power::Fertilize => "card_fertilize.png",
-            Power::Fire => "card_fire.png",
-            Power::Seed => "card_seed.png",
-            Power::Drain => "card_drain.png",
+            Power::Fertilize => ("card_fertilize.png".to_string(), None),
+            Power::Fire => ("card_fire.png".to_string(), None),
+            Power::Seed => ("card_seed.png".to_string(), None),
+            Power::Drain => ("card_drain.png".to_string(), None),
             Power::Plant => match &seed.0 {
-                Some((_, url)) => url.as_str(),
-                None => "goal_pillar.png",
+                Some((_, url, color)) => (url.to_string(), Some(*color)),
+                None => ("goal_pillar.png".to_string(), None),
             },
         }
-        .to_string()
     }
 
     pub fn key_binding(&self) -> String {

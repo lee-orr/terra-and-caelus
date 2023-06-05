@@ -1,0 +1,16 @@
+---
+name: A Mossy Path
+description: |-
+  a crying soul
+  along the shore
+  in search of beauty
+  seen
+
+  different plants
+  grow different ways
+tiles: |-
+  g g rf rf::t.flower w
+  g gf rf w w
+  gf:.grass:p r r w r:.moss
+  gf::f.grass gf r::s.moss w r:.moss
+  g:.flower gf r:.moss w r:.moss
