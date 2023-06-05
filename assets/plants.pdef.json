@@ -12,7 +12,7 @@
     "id": "flower",
     "allowed_grounds": "gf,g,rf",
     "spread": {
-      "AdjacentEmpty": 1
+      "AdjacentEmpty": 3
     },
     "aggressiveness": 2
   },

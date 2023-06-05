@@ -197,3 +197,109 @@ button.menu_button:hover .button-foreground {
 .separator {
     height: 20px;
 }
+
+.in_game .exit_button {
+    position-type: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #309975;
+    padding: 10px;
+}
+
+.in_game .content {
+    font-size: 15;
+}
+
+.in_game .cards {
+    position-type: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    padding: 20px;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.in_game .card {
+    width: 100px;
+    height: 100px;
+    position-type: relative;
+    margin: 10px;
+}
+
+.card .card-image {
+    position-type: absolute;
+    top: 0px;
+    left: 0px;
+    right:  0px;
+    bottom: 0px;
+}
+
+.card .label {
+    position-type: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    padding: 5px;
+    background-color: #000000bb;
+    justify-content: center;
+    font: "font.ttf";
+}
+
+.card .available {
+    position-type: absolute;
+    top: 0px;
+    right: 0px;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    background-color: #454D66ee;
+    font-size: 20;
+    color: #59B366;
+}
+
+
+.key_bind {
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    background-color: #F0EDB555;
+    font-size: 15;
+    color: #454D66;
+    font: "font.ttf";
+}
+
+.movement .up {
+    position-type: absolute;
+    top: 0px;
+    left: 35px;
+    justify-content: center;
+    align-items: center;
+}
+
+.movement .down {
+    position-type: absolute;
+    bottom: 0px;
+    left: 35px;
+    justify-content: center;
+    align-items: center;
+}
+
+.movement .left {
+    position-type: absolute;
+    left: 0px;
+    top: 35px;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.movement .right {
+    position-type: absolute;
+    right: 0px;
+    top: 35px;
+    justify-content: center;
+    align-items: center;
+}

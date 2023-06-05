@@ -22,6 +22,7 @@ impl Plugin for ControlPlugin {
                     .in_set(OnUpdate(AppState::InGame))
                     .before(set_player_position),
             )
+            .add_system(gain_power.in_set(OnUpdate(AppState::InGame)))
             .add_system(set_player_position)
             .add_system(reset_available_powers.in_schedule(OnEnter(AppState::InGame)))
             .add_system(reset_available_powers.in_schedule(OnExit(AppState::InGame)))
@@ -39,7 +40,7 @@ pub struct Player(pub i8, pub i8);
 pub struct GainPower(pub Power);
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
-pub struct UsePower(pub Power);
+pub struct UsePower(pub Power, pub Tile);
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum Power {
@@ -49,8 +50,53 @@ pub enum Power {
     Drain,
 }
 
+impl ToString for Power {
+    fn to_string(&self) -> String {
+        match self {
+            Power::Fertilize => "Fertilize",
+            Power::Fire => "Fire",
+            Power::Seed => "Seed",
+            Power::Drain => "Drain",
+        }
+        .to_string()
+    }
+}
+
+impl Power {
+    pub fn ui_class_name(&self) -> String {
+        let name = self.to_string();
+        format!("card {name}")
+    }
+
+    pub fn ui_image(&self) -> String {
+        match self {
+            Power::Fertilize => "card_fertilize.png",
+            Power::Fire => "card_fire.png",
+            Power::Seed => "card_seed.png",
+            Power::Drain => "card_drain.png",
+        }
+        .to_string()
+    }
+
+    pub fn key_binding(&self) -> String {
+        match self {
+            Power::Fertilize => "Z",
+            Power::Fire => "X",
+            Power::Seed => "C",
+            Power::Drain => "V",
+        }
+        .to_string()
+    }
+}
+
 #[derive(Resource, Clone, Default)]
 pub struct AvailablePowers(pub HashMap<Power, usize>);
+
+impl AvailablePowers {
+    fn set_value(&mut self, p: Power, v: usize) {
+        self.0.insert(p, v);
+    }
+}
 
 fn reset_available_powers(mut commands: Commands) {
     commands.insert_resource(AvailablePowers::default());
@@ -87,7 +133,10 @@ fn setup_player(
                     (KeyCode::Down.into(), Action::Down),
                     (KeyCode::Left.into(), Action::Left),
                     (KeyCode::Right.into(), Action::Right),
-                    (KeyCode::F.into(), Action::Fertilize),
+                    (KeyCode::Z.into(), Action::Fertilize),
+                    (KeyCode::C.into(), Action::Seed),
+                    (KeyCode::V.into(), Action::Drain),
+                    (KeyCode::X.into(), Action::Fire),
                 ]),
             },
         ));
@@ -118,12 +167,16 @@ enum Action {
     Left,
     Right,
     Fertilize,
+    Fire,
+    Seed,
+    Drain,
 }
 
 fn move_player(
     mut player: Query<(&mut Player, &ActionState<Action>)>,
     query: Query<(&Tile, &Ground, &Plant)>,
-    mut fertilize: EventWriter<Fertalize>,
+    mut use_power: EventWriter<UsePower>,
+    mut powers: ResMut<AvailablePowers>,
 ) {
     for (mut p, a) in player.iter_mut() {
         let mut target = Tile(p.0, p.1);
@@ -148,7 +201,40 @@ fn move_player(
         }
 
         if a.just_pressed(Action::Fertilize) {
-            fertilize.send(Fertalize(Tile(p.0, p.1)));
+            try_use_power(Power::Fertilize, &mut powers, &mut use_power, &p);
         }
+
+        if a.just_pressed(Action::Drain) {
+            try_use_power(Power::Drain, &mut powers, &mut use_power, &p);
+        }
+
+        if a.just_pressed(Action::Seed) {
+            try_use_power(Power::Seed, &mut powers, &mut use_power, &p);
+        }
+
+        if a.just_pressed(Action::Fire) {
+            try_use_power(Power::Fire, &mut powers, &mut use_power, &p);
+        }
+    }
+}
+
+fn try_use_power(
+    power: Power,
+    powers: &mut ResMut<AvailablePowers>,
+    use_power: &mut EventWriter<UsePower>,
+    p: &Mut<Player>,
+) {
+    let Some(available) = powers.0.get(&power) else {return;};
+    let available = *available;
+    if available > 0 {
+        powers.set_value(power.clone(), available.saturating_sub(1));
+        use_power.send(UsePower(power, Tile(p.0, p.1)));
+    }
+}
+
+fn gain_power(mut gain_power: EventReader<GainPower>, mut powers: ResMut<AvailablePowers>) {
+    for GainPower(p) in gain_power.iter() {
+        let available = powers.0.get(p).copied().unwrap_or_default();
+        powers.set_value(*p, available + 1);
     }
 }

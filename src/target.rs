@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     assets::GameAssets,
+    control::{GainPower, Power},
     states::AppState,
     tile::{Ground, Plant, PlantDefinitions, Tile, TileAsset, TILE_WORLD_SIZE},
 };
@@ -27,6 +28,9 @@ pub enum Reward {
 
 #[derive(Component, Debug, Clone)]
 pub struct Target(pub Tile, pub String, pub Reward);
+
+#[derive(Component)]
+pub struct UsedTarget;
 
 fn setup_target(
     mut commands: Commands,
@@ -75,25 +79,26 @@ fn setup_target(
 }
 
 fn process_target(
-    targets: Query<&Target>,
+    targets: Query<(Entity, &Target), Without<UsedTarget>>,
     tiles: Query<(&Tile, &Ground, &Plant)>,
     mut commands: Commands,
+    mut gain_power: EventWriter<GainPower>,
 ) {
     for (tile, _, plant) in tiles.iter() {
-        for target in targets.iter() {
+        for (e, target) in targets.iter() {
             if target.0 == *tile {
                 let Plant::Plant(p) = plant else { continue; };
                 if p.as_str() == target.1 {
-                    commands.insert_resource(NextState(Some(AppState::LevelComplete)));
-                    // match target.2 {
-                    //     Reward::CompleteLevel => {
-                    //         commands.insert_resource(NextState(Some(AppState::LevelComplete)));
-                    //     }
-                    //     Reward::Fertilize => todo!(),
-                    //     Reward::Burn => todo!(),
-                    //     Reward::Seed => todo!(),
-                    //     Reward::Drain => todo!(),
-                    // };
+                    commands.entity(e).insert(UsedTarget).despawn_descendants();
+                    match target.2 {
+                        Reward::CompleteLevel => {
+                            commands.insert_resource(NextState(Some(AppState::LevelComplete)));
+                        }
+                        Reward::Fertilize => gain_power.send(GainPower(Power::Fertilize)),
+                        Reward::Burn => gain_power.send(GainPower(Power::Fire)),
+                        Reward::Seed => gain_power.send(GainPower(Power::Seed)),
+                        Reward::Drain => gain_power.send(GainPower(Power::Drain)),
+                    };
                 }
             }
         }

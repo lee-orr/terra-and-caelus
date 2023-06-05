@@ -27,6 +27,8 @@ pub struct GameAssets {
     pub card_fire: Handle<Image>,
     #[asset(path = "card_seed.png")]
     pub card_seed: Handle<Image>,
+    #[asset(path = "card_move.png")]
+    pub card_move: Handle<Image>,
 
     #[asset(path = "shrine_drain.png")]
     pub shrine_drain: Handle<Image>,
