@@ -31,6 +31,7 @@ pub struct LevelAsset {
     #[serde(deserialize_with = "strings_or_struct")]
     pub tiles: LevelTiles,
     pub name: String,
+    pub description: Option<String>,
 }
 
 #[derive(Resource, Clone, Debug, Default)]

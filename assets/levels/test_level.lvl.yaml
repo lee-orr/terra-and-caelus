@@ -1,5 +1,8 @@
 ---
 name: Test Level
+description: |-
+  A Test Level
+  Is Something Special
 tiles: |-
   gf:.flower gf g g g g g g
   w w gf g g g g gf

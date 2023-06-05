@@ -1,6 +1,7 @@
 use crate::{
     assets::GameAssets,
     control::{AvailablePowers, Seed},
+    level_asset::{CurrentLevel, LevelAsset},
     states::AppState,
 };
 use belly::{core::ess::Styles, prelude::*};
@@ -29,7 +30,12 @@ fn setup_menu(
     powers: Res<AvailablePowers>,
     seed: Res<Seed>,
     query: Query<Entity, With<MenuItem>>,
+    current_level: Res<CurrentLevel>,
+    level_assets: Res<Assets<LevelAsset>>,
 ) {
+    let Some(current_level) = current_level.0.as_ref() else { return; };
+    let Some(level) = level_assets.get(current_level) else { return;};
+
     if !powers.is_changed() {
         return;
     }
@@ -47,10 +53,26 @@ fn setup_menu(
         .filter_map(|(p, v)| if *v > 0 { Some((p.clone(), *v)) } else { None })
         .collect::<Vec<_>>();
     let seed = seed.clone();
+    let level_header = level.name.clone();
+    let level_description = level
+        .description
+        .clone()
+        .unwrap_or_default()
+        .lines()
+        .map(|v| v.to_string())
+        .collect::<Vec<_>>();
 
     commands.add(eml! {
         <body {ui} c:in_game>
-                <button c:exit_button on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::Menu)))><span c:content>"Exit"</span></button>
+                <div c:description>
+                    <div c:desc_header>
+                        <div c:level_header>{level_header}</div>
+                        <button c:exit_button on:press=|ctx| ctx.commands().insert_resource(NextState(Some(AppState::Menu)))><span c:content>"Exit"</span></button>
+                    </div>
+                    <for dsc in=level_description>
+                        <div c:level_description>{dsc}</div>
+                    </for>
+                </div>
                 <div c:cards>
                     <div c:card c:movement>
                         <img c:card-image src="card_move.png"></img>

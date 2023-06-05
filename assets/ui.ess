@@ -198,18 +198,6 @@ button.menu_button:hover .button-foreground {
     height: 20px;
 }
 
-.in_game .exit_button {
-    position-type: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #309975;
-    padding: 10px;
-}
-
-.in_game .content {
-    font-size: 15;
-}
-
 .in_game .cards {
     position-type: absolute;
     bottom: 0px;
@@ -302,4 +290,43 @@ button.menu_button:hover .button-foreground {
     top: 35px;
     justify-content: center;
     align-items: center;
+}
+
+.description {
+    position-type: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #000000bb;
+    width: 250px;
+    padding: 10px;
+    flex-direction: column;
+}
+
+.desc_header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 10px;
+}
+
+.desc_header .exit_button {
+    background-color: #309975;
+    padding: 5px;
+}
+
+.desc_header .content {
+    font-size: 12;
+}
+
+.level_header {
+    font-size: 20;
+    color: #59B366;
+    font: "font.ttf";
+}
+
+.level_description {
+    font-size: 15;
+    color: #F0EDB5;
+    font: "font.ttf";
+    height: auto;
 }
