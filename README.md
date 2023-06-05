@@ -44,6 +44,7 @@ Procedural puzzles around manipulating plant growth via powers that transform th
   Weeds
   - [ ] Crabgrass - grows well in under-fertilized land, spread well, clears if too fertilized
   - [ ] Dandelion - spreads by wind, grows quickly, cleared if drained
+- [ ] Music & SFX
 - [ ] Generate Levels*
 
 ## Assets

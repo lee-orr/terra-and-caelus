@@ -1,8 +1,9 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, utils::HashMap};
 use leafwing_input_manager::prelude::*;
 
 use crate::{
     assets::GameAssets,
+    generate_tiles::LevelLoaded,
     states::AppState,
     tile::{Fertalize, Ground, Plant, Tile, TILE_WORLD_SIZE},
 };
@@ -11,19 +12,49 @@ pub struct ControlPlugin;
 
 impl Plugin for ControlPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(InputManagerPlugin::<Action>::default())
+        app.init_resource::<AvailablePowers>()
+            .add_event::<GainPower>()
+            .add_event::<UsePower>()
+            .add_plugin(InputManagerPlugin::<Action>::default())
             .add_system(setup_player.in_set(OnUpdate(AppState::InGame)))
             .add_system(
                 move_player
                     .in_set(OnUpdate(AppState::InGame))
                     .before(set_player_position),
             )
-            .add_system(set_player_position);
+            .add_system(set_player_position)
+            .add_system(reset_available_powers.in_schedule(OnEnter(AppState::InGame)))
+            .add_system(reset_available_powers.in_schedule(OnExit(AppState::InGame)))
+            .add_system(
+                reset_available_powers
+                    .run_if(in_state(AppState::InGame).and_then(on_event::<LevelLoaded>())),
+            );
     }
 }
 
 #[derive(Component)]
 pub struct Player(pub i8, pub i8);
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct GainPower(pub Power);
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct UsePower(pub Power);
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub enum Power {
+    Fertilize,
+    Fire,
+    Seed,
+    Drain,
+}
+
+#[derive(Resource, Clone, Default)]
+pub struct AvailablePowers(pub HashMap<Power, usize>);
+
+fn reset_available_powers(mut commands: Commands) {
+    commands.insert_resource(AvailablePowers::default());
+}
 
 fn setup_player(
     mut commands: Commands,

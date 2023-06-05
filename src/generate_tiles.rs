@@ -12,7 +12,8 @@ pub struct TileGeneratorPlugin;
 
 impl Plugin for TileGeneratorPlugin {
     fn build(&self, app: &mut bevy::prelude::App) {
-        app.add_system(generate_tiles.in_schedule(OnEnter(AppState::InGame)))
+        app.add_event::<LevelLoaded>()
+            .add_system(generate_tiles.in_schedule(OnEnter(AppState::InGame)))
             .add_system(
                 generate_tiles
                     .in_base_set(CoreSet::PostUpdate)
@@ -30,11 +31,15 @@ impl Plugin for TileGeneratorPlugin {
 #[derive(Component)]
 pub struct Level;
 
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct LevelLoaded;
+
 fn generate_tiles(
     mut commands: Commands,
     existing_levels: Query<Entity, With<Level>>,
     current_level: Res<CurrentLevel>,
     level_assets: Res<Assets<LevelAsset>>,
+    mut loaded: EventWriter<LevelLoaded>,
 ) {
     for entity in existing_levels.iter() {
         commands.entity(entity).despawn_recursive();
@@ -81,6 +86,7 @@ fn generate_tiles(
                 }
             }
         });
+    loaded.send(LevelLoaded);
 }
 
 fn clear_level(mut commands: Commands, existing_levels: Query<Entity, With<Level>>) {
