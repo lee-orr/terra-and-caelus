@@ -1,4 +1,4 @@
-use std::str::FromStr;
+use std::{fmt, marker::PhantomData, str::FromStr};
 
 use bevy::{
     prelude::*,
@@ -7,26 +7,66 @@ use bevy::{
 };
 use bevy_common_assets::json::JsonAssetPlugin;
 use bevy_inspector_egui::{prelude::ReflectInspectorOptions, InspectorOptions};
-use serde::{Deserialize, Serialize};
+use serde::{
+    de::{self, Visitor},
+    Deserialize, Deserializer, Serialize,
+};
 
 use crate::assets::GameAssets;
 
-#[derive(Component, Debug, Clone, Copy, PartialEq, Eq, Default, Hash, Serialize, Deserialize)]
+#[derive(
+    Component,
+    Debug,
+    Clone,
+    Copy,
+    PartialEq,
+    Eq,
+    Default,
+    Hash,
+    Serialize,
+    Deserialize,
+    Reflect,
+    FromReflect,
+)]
 pub enum Ground {
     #[default]
+    Empty,
     Water,
-    Ground(i16),
+    Soil(bool),
+    Sand(bool),
+    Rock(bool),
 }
 
 impl FromStr for Ground {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        if "g" == s {
-            Ok(Ground::Ground(8))
-        } else {
-            Ok(Ground::Water)
+        match s {
+            "g" => Ok(Ground::Soil(false)),
+            "gf" => Ok(Ground::Soil(true)),
+            "s" => Ok(Ground::Sand(false)),
+            "sf" => Ok(Ground::Sand(true)),
+            "r" => Ok(Ground::Rock(false)),
+            "rf" => Ok(Ground::Rock(true)),
+            "w" => Ok(Ground::Water),
+            _ => Ok(Ground::Empty),
         }
+    }
+}
+
+impl ToString for Ground {
+    fn to_string(&self) -> String {
+        match self {
+            Ground::Empty => "",
+            Ground::Water => "w",
+            Ground::Soil(true) => "gf",
+            Ground::Sand(true) => "sf",
+            Ground::Rock(true) => "rf",
+            Ground::Soil(false) => "g",
+            Ground::Sand(false) => "s",
+            Ground::Rock(false) => "r",
+        }
+        .to_string()
     }
 }
 
@@ -99,6 +139,40 @@ pub struct Fertalize(pub Tile);
 pub const TILE_WORLD_SIZE: f32 = 40.;
 
 #[derive(
+    Debug, Clone, Reflect, FromReflect, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize,
+)]
+pub enum SpreadType {
+    AdjacentEmpty(usize),
+    AdjacentAggresive(usize),
+    AdjacentRequire(usize, Vec<String>),
+    Seeded,
+    SeededRequire(Vec<String>),
+}
+
+impl Default for SpreadType {
+    fn default() -> Self {
+        Self::AdjacentEmpty(1)
+    }
+}
+
+#[derive(Debug, Default, Clone, Reflect, FromReflect, PartialEq, Serialize, Deserialize)]
+pub struct GroundList(pub Vec<Ground>);
+
+impl FromStr for GroundList {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self(
+            s.split(',')
+                .map(|v| v.trim())
+                .filter(|v| !v.is_empty())
+                .map(|v| Ground::from_str(v).unwrap_or_default())
+                .collect(),
+        ))
+    }
+}
+
+#[derive(
     Debug,
     Default,
     Clone,
@@ -112,15 +186,20 @@ pub const TILE_WORLD_SIZE: f32 = 40.;
 )]
 #[uuid = "11c21cdc-4ee1-4112-94fe-645868914bc2"]
 pub struct PlantDefinition {
+    #[serde(default)]
     pub color: Color,
-    pub seeded: bool,
-    pub aggressiveness: u8,
-    pub survive_threshold: i16,
-    pub spread_threshold: i16,
-    pub local_cost: i16,
-    pub neighbour_cost: i16,
+    #[serde(default)]
+    pub spread: SpreadType,
     pub asset: String,
+    #[serde(default)]
+    pub aggressiveness: usize,
     pub id: String,
+    #[serde(deserialize_with = "string_deserializer")]
+    pub allowed_grounds: GroundList,
+    #[serde(deserialize_with = "string_deserializer", default)]
+    pub required_neighbour_grounds: GroundList,
+    #[serde(default)]
+    pub required_neighbour_plants: Vec<String>,
 }
 
 impl PartialOrd for PlantDefinition {
@@ -129,23 +208,20 @@ impl PartialOrd for PlantDefinition {
             Some(core::cmp::Ordering::Equal) => {}
             ord => return ord,
         }
-        match self.seeded.partial_cmp(&other.seeded) {
+        match self.spread.partial_cmp(&other.spread) {
             Some(core::cmp::Ordering::Equal) => {}
             ord => return ord,
         }
-        match self.spread_threshold.partial_cmp(&other.spread_threshold) {
+        match self
+            .allowed_grounds
+            .0
+            .len()
+            .partial_cmp(&other.allowed_grounds.0.len())
+        {
             Some(core::cmp::Ordering::Equal) => {}
             ord => return ord,
         }
-        match self.survive_threshold.partial_cmp(&other.survive_threshold) {
-            Some(core::cmp::Ordering::Equal) => {}
-            ord => return ord,
-        }
-        match self.local_cost.partial_cmp(&other.local_cost) {
-            Some(core::cmp::Ordering::Equal) => {}
-            ord => return ord,
-        }
-        self.neighbour_cost.partial_cmp(&other.neighbour_cost)
+        self.id.partial_cmp(&other.id)
     }
 }
 
@@ -222,4 +298,37 @@ fn update_plant_definitions(
     let server: AssetServer = server.clone();
     let def = (definitions.clone(), server).into();
     commands.insert_resource::<PlantDefinitions>(def);
+}
+
+fn string_deserializer<'de, T, D>(deserializer: D) -> Result<T, D::Error>
+where
+    T: Deserialize<'de> + FromStr<Err = anyhow::Error>,
+    D: Deserializer<'de>,
+{
+    // This is a Visitor that forwards string types to T's `FromStr` impl and
+    // forwards map types to T's `Deserialize` impl. The `PhantomData` is to
+    // keep the compiler from complaining about T being an unused generic type
+    // parameter. We need T in order to know the Value type for the Visitor
+    // impl.
+    struct Strings<T>(PhantomData<fn() -> T>);
+
+    impl<'de, T> Visitor<'de> for Strings<T>
+    where
+        T: Deserialize<'de> + FromStr<Err = anyhow::Error>,
+    {
+        type Value = T;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+            formatter.write_str("string or map")
+        }
+
+        fn visit_str<E>(self, value: &str) -> Result<T, E>
+        where
+            E: de::Error,
+        {
+            Ok(FromStr::from_str(value).unwrap())
+        }
+    }
+
+    deserializer.deserialize_any(Strings(PhantomData))
 }

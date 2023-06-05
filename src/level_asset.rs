@@ -58,13 +58,30 @@ impl FromStr for LevelTiles {
                 let mut split = tile.split(':');
                 let (ground, plant) = (split.next(), split.next());
                 let tile = Tile(x as i8, y as i8);
+
+                let plant = plant
+                    .map(|p: &str| Plant::from_str(p).unwrap_or_default())
+                    .unwrap_or_default();
+
+                let ground = ground
+                    .map(|g| Ground::from_str(g).unwrap_or_default())
+                    .map(|g| {
+                        if matches!(plant, Plant::Plant(_)) {
+                            match g {
+                                Ground::Soil(_) => Ground::Soil(true),
+                                Ground::Sand(_) => Ground::Sand(true),
+                                Ground::Rock(_) => Ground::Rock(true),
+                                _ => g,
+                            }
+                        } else {
+                            g
+                        }
+                    })
+                    .unwrap_or_default();
+
                 let content = (
-                    ground
-                        .map(|g| Ground::from_str(g).unwrap_or_default())
-                        .unwrap_or_default(),
-                    plant
-                        .map(|p: &str| Plant::from_str(p).unwrap_or_default())
-                        .unwrap_or_default(),
+                    ground,
+                    plant,
                     split.filter_map(|s| GameEntity::from_str(s).ok()).collect(),
                 );
 

@@ -97,9 +97,10 @@ fn move_player(
         if a.just_pressed(Action::Right) {
             target.0 += 1;
         }
-        if query.iter().any(|(t, g, p)| {
-            *t == target && !matches!(g, Ground::Water) && !matches!(p, Plant::Empty)
-        }) {
+        if query
+            .iter()
+            .any(|(t, _g, p)| *t == target && !matches!(p, Plant::Empty))
+        {
             p.0 = target.0;
             p.1 = target.1;
         }

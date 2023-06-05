@@ -53,9 +53,13 @@ fn get_tile_image(
     (
         match backing {
             Ground::Water => assets.water.clone(),
-            Ground::Ground(6..) => assets.fertile_ground.clone(),
-            Ground::Ground(1..=5) => assets.harsh_ground.clone(),
-            Ground::Ground(_) => assets.depleted_ground.clone(),
+            Ground::Empty => assets.void.clone(),
+            Ground::Soil(false) => assets.soil.clone(),
+            Ground::Soil(true) => assets.fertile_soil.clone(),
+            Ground::Sand(false) => assets.sand.clone(),
+            Ground::Sand(true) => assets.fertile_sand.clone(),
+            Ground::Rock(false) => assets.rock.clone(),
+            Ground::Rock(true) => assets.fertile_rock.clone(),
         },
         match cell {
             Plant::Empty => None,
