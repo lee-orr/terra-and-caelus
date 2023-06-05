@@ -1,10 +1,10 @@
-use std::{ops::Div, time::Duration};
+use std::time::Duration;
 
 use bevy::{prelude::*, time::common_conditions::on_timer, utils::HashMap};
 
 use crate::{
     states::AppState,
-    tile::{Fertalize, Ground, Plant, PlantDefinition, PlantDefinitions, Tile},
+    tile::{Fertalize, Ground, Plant, PlantDefinition, PlantDefinitions, SpreadType, Tile},
 };
 
 pub struct UpdateTilesPlugin;
@@ -54,14 +54,7 @@ fn update_tiles(
             &plants.definitions,
             &plants.name_to_id,
         );
-        let new_plant = update_cell(
-            &new_ground,
-            plant,
-            tile,
-            &tiles,
-            &plants.definitions,
-            &plants.name_to_id,
-        );
+        let new_plant = update_plant(&new_ground, plant, tile, &tiles, &plants.definitions);
 
         if new_ground != *ground {
             commands.entity(entity).insert(new_ground);
@@ -73,101 +66,125 @@ fn update_tiles(
     }
 }
 
-fn update_cell(
+fn can_survive(
+    plant_definition: &PlantDefinition,
+    ground: &Ground,
+    tile: &Tile,
+    tiles: &HashMap<Tile, (&Ground, &Plant)>,
+) -> bool {
+    if !plant_definition.allowed_grounds.0.contains(ground) {
+        return false;
+    }
+    if !plant_definition.required_neighbour_grounds.0.is_empty()
+        && count_matching_neighbours(tile, tiles, |(g, _)| {
+            plant_definition.required_neighbour_grounds.0.contains(*g)
+        }) == 0
+    {
+        return false;
+    }
+    if !plant_definition.required_neighbour_plants.is_empty()
+        && count_matching_neighbours(tile, tiles, |(_, p)| {
+            if let Plant::Plant(p) = p {
+                plant_definition.required_neighbour_plants.contains(p)
+            } else {
+                false
+            }
+        }) == 0
+    {
+        return false;
+    }
+
+    true
+}
+
+fn can_spread(
+    plant_definition: &PlantDefinition,
+    plant: &Plant,
+    ground: &Ground,
+    tile: &Tile,
+    tiles: &HashMap<Tile, (&Ground, &Plant)>,
+) -> bool {
+    if !can_survive(plant_definition, ground, tile, tiles) {
+        return false;
+    }
+
+    match &plant_definition.spread {
+        SpreadType::AdjacentEmpty(n) => {
+            *plant == Plant::Empty
+                && count_matching_neighbours(tile, tiles, |(_, p)| {
+                    if let Plant::Plant(p) = p {
+                        *p == plant_definition.id
+                    } else {
+                        false
+                    }
+                }) >= *n
+        }
+        SpreadType::AdjacentAggresive(n) => {
+            count_matching_neighbours(tile, tiles, |(_, p)| {
+                if let Plant::Plant(p) = p {
+                    *p == plant_definition.id
+                } else {
+                    false
+                }
+            }) >= *n
+        }
+        SpreadType::AdjacentRequire(n, req) => {
+            count_matching_neighbours(tile, tiles, |(_, p)| {
+                if let Plant::Plant(p) = p {
+                    req.contains(p)
+                } else {
+                    false
+                }
+            }) >= 1
+                && count_matching_neighbours(tile, tiles, |(_, p)| {
+                    if let Plant::Plant(p) = p {
+                        *p == plant_definition.id
+                    } else {
+                        false
+                    }
+                }) >= *n
+        }
+        _ => false,
+    }
+}
+
+fn update_plant(
     ground: &Ground,
     plant: &Plant,
     tile: &Tile,
-    tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Ground, &Plant)>,
+    tiles: &HashMap<Tile, (&Ground, &Plant)>,
     plants: &[PlantDefinition],
-    _name_to_id: &HashMap<String, usize>,
 ) -> Plant {
-    plant.clone()
-    // match (ground, plant) {
-    //     (Ground::Water, _) => Plant::Empty,
-    //     (Ground::Ground(nutrients), Plant::Empty) => {
-    //         let plant = plants.iter().enumerate().find(|(_id, p)| {
-    //             let id = p.id.as_str();
-    //             if p.spread_threshold <= *nutrients {
-    //                 if p.seeded {
-    //                     let count = count_matching_neighbours(tile, tiles, |(_, p)| {
-    //                         **p == Plant::Plant(id.to_string())
-    //                     });
-    //                     count > 0
-    //                 } else {
-    //                     true
-    //                 }
-    //             } else {
-    //                 false
-    //             }
-    //         });
-    //         match plant {
-    //             Some((_id, p)) => Plant::Plant(p.id.clone()),
-    //             None => Plant::Empty,
-    //         }
-    //     }
-    //     (Ground::Ground(nutrients), Plant::Plant(id)) => {
-    //         let id = id.as_str();
-    //         let plant = plants.iter().enumerate().find(|(_i, p)| {
-    //             let i = p.id.as_str();
-    //             if i != id && p.spread_threshold <= *nutrients {
-    //                 if p.seeded {
-    //                     let count = count_matching_neighbours(tile, tiles, |(_, p)| {
-    //                         **p == Plant::Plant(i.to_string())
-    //                     });
-    //                     count > 0
-    //                 } else {
-    //                     true
-    //                 }
-    //             } else {
-    //                 i == id && p.survive_threshold <= *nutrients
-    //             }
-    //         });
-    //         match plant {
-    //             Some((_id, p)) => Plant::Plant(p.id.clone()),
-    //             None => Plant::Empty,
-    //         }
-    //     }
-    // }
+    let current_plant = if let Plant::Plant(i) = plant {
+        i.clone()
+    } else {
+        "".to_string()
+    };
+
+    let plant = plants.iter().find(|p| {
+        let i = p.id.as_str();
+        if i != current_plant {
+            can_spread(p, plant, ground, tile, tiles)
+        } else {
+            can_survive(p, ground, tile, tiles)
+        }
+    });
+
+    match plant {
+        Some(p) => Plant::Plant(p.id.clone()),
+        None => Plant::Empty,
+    }
 }
 
 fn update_backing(
     ground: &Ground,
-    plant: &Plant,
-    tile: &Tile,
-    tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Ground, &Plant)>,
-    plants: &[PlantDefinition],
-    name_to_id: &HashMap<String, usize>,
+    _plant: &Plant,
+    _tile: &Tile,
+    _tiles: &bevy::utils::hashbrown::HashMap<Tile, (&Ground, &Plant)>,
+    _plants: &[PlantDefinition],
+    _name_to_id: &HashMap<String, usize>,
 ) -> Ground {
-    ground.clone()
-    // match ground {
-    //     Ground::Water => Ground::Water,
-    //     Ground::Ground(nutrients) => {
-    //         let available_nutrients = nutrients.saturating_sub(
-    //             plant
-    //                 .definition(plants, name_to_id)
-    //                 .map(|p| p.local_cost)
-    //                 .unwrap_or_default(),
-    //         );
-    //         let neighbour_nutrients =
-    //             process_neighbours(tile, tiles, available_nutrients, |value, (g, p)| {
-    //                 if let Ground::Ground(nutrients) = **g {
-    //                     let available_nutrients = nutrients.saturating_sub(
-    //                         p.definition(plants, name_to_id)
-    //                             .map(|p| p.neighbour_cost)
-    //                             .unwrap_or_default(),
-    //                     );
-    //                     value.saturating_add(available_nutrients)
-    //                 } else {
-    //                     value.saturating_add(16)
-    //                 }
-    //             });
-
-    //         let mut nutrients = neighbour_nutrients.div(9);
-
-    //         nutrients = nutrients.max(0).min(8);
-    //         Ground::Ground(nutrients)
-    //     }
-    // }
+    *ground
 }
 
 const NEIGHBOURHOOD: [(i8, i8); 8] = [
@@ -185,7 +202,7 @@ fn count_matching_neighbours<T>(
     tile: &Tile,
     tiles: &HashMap<Tile, T>,
     f: impl Fn(&T) -> bool,
-) -> u8 {
+) -> usize {
     NEIGHBOURHOOD
         .iter()
         .map(|(x, y)| Tile(tile.0 + *x, tile.1 + *y))

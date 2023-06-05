@@ -54,6 +54,22 @@ impl FromStr for Ground {
     }
 }
 
+impl ToString for Ground {
+    fn to_string(&self) -> String {
+        match self {
+            Ground::Empty => "",
+            Ground::Water => "w",
+            Ground::Soil(true) => "gf",
+            Ground::Sand(true) => "sf",
+            Ground::Rock(true) => "rf",
+            Ground::Soil(false) => "g",
+            Ground::Sand(false) => "s",
+            Ground::Rock(false) => "r",
+        }
+        .to_string()
+    }
+}
+
 #[derive(Component, Debug, Clone, PartialEq, Eq, Default, Hash, Serialize, Deserialize)]
 pub enum Plant {
     #[default]
@@ -128,7 +144,7 @@ pub const TILE_WORLD_SIZE: f32 = 40.;
 pub enum SpreadType {
     AdjacentEmpty(usize),
     AdjacentAggresive(usize),
-    AdjacentRequire(Vec<String>),
+    AdjacentRequire(usize, Vec<String>),
     Seeded,
     SeededRequire(Vec<String>),
 }
@@ -147,7 +163,7 @@ impl FromStr for GroundList {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self(
-            s.split(",")
+            s.split(',')
                 .map(|v| v.trim())
                 .filter(|v| !v.is_empty())
                 .map(|v| Ground::from_str(v).unwrap_or_default())

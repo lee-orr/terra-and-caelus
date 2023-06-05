@@ -2,12 +2,15 @@
   {
     "asset": "moss.png",
     "id": "moss",
-    "allowed_grounds": "r,rf,g,gf"
+    "allowed_grounds": "w,r,rf,g,gf",
+    "spread": {
+      "AdjacentEmpty": 2
+    }
   },
   {
     "asset": "flower.png",
     "id": "flower",
-    "allowed_grounds": "gr,rf",
+    "allowed_grounds": "gf,rf",
     "spread": {
       "AdjacentEmpty": 1
     },
