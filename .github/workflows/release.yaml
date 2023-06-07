@@ -49,6 +49,12 @@ jobs:
           path: ${{ env.binary }}.zip
           name: wasm
 
+      - name: Upload folder to artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./dist
+          name: wasm_pages
+
       - name: Upload binaries to release
         if: ${{ env.add_binaries_to_github_release == 'true' }}
         uses: svenstaro/upload-release-action@v2
@@ -222,7 +228,7 @@ jobs:
         id: deploy
         uses: actions/deploy-pages@v2
         with:
-          artifact_name: wasm
+          artifact_name: wasm_pages
 
   upload-to-itch:
     runs-on: ubuntu-latest
