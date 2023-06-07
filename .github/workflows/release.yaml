@@ -3,7 +3,7 @@ name: Release
 on:
   push:
     tags:
-      - '*'
+      - "*"
   workflow_dispatch:
 
 env:
@@ -16,7 +16,6 @@ env:
 concurrency:
   group: release
   cancel-in-progress: true
-
 
 jobs:
   # Build for wasm
@@ -65,7 +64,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -112,7 +110,6 @@ jobs:
     runs-on: windows-latest
 
     steps:
-
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -155,7 +152,6 @@ jobs:
     runs-on: macOS-latest
 
     steps:
-
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -208,6 +204,24 @@ jobs:
           fi
       - name: validate ref
         run: echo "RELEASE - ${{ env.release_version}}"
+
+  upload-to-github:
+    runs-on: ubuntu-latest
+    needs: release-wasm
+
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to Github Pages
+        id: deploy
+        uses: actions/deploy-pages@v2
+        artifact_name: wasm
 
   upload-to-itch:
     runs-on: ubuntu-latest
