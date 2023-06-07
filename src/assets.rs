@@ -1,6 +1,7 @@
 use belly::prelude::StyleSheet;
 use bevy::prelude::*;
 use bevy_asset_loader::prelude::*;
+// use bevy_kira_audio::AudioSource;
 
 use crate::{
     level_asset::LevelList,
@@ -68,7 +69,7 @@ pub struct GameAssets {
     #[asset(path = "levels/levels.lvl.list.json")]
     pub levels: Handle<LevelList>,
 
-    #[asset(path = "terra.mp3")]
+    #[asset(path = "terra.ogg")]
     pub music: Handle<AudioSource>,
 }
 

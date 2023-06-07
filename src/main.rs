@@ -16,10 +16,13 @@ mod target;
 mod tile;
 mod update_tiles;
 
+use std::time::Duration;
+
 use assets::GameAssets;
 use belly::prelude::BellyPlugin;
 use bevy::{input::common_conditions::input_toggle_active, prelude::*};
 use bevy_asset_loader::prelude::{LoadingState, LoadingStateAppExt};
+// use bevy_kira_audio::{prelude::*, Audio};
 
 use bevy_inspector_egui::quick::ResourceInspectorPlugin;
 use bevy_vector_shapes::Shape2dPlugin;
@@ -70,6 +73,7 @@ fn main() {
             ResourceInspectorPlugin::<PlantDefinitions>::default()
                 .run_if(input_toggle_active(false, KeyCode::Escape)),
         )
+        // .add_plugin(AudioPlugin)
         .add_loading_state(
             LoadingState::new(AppState::LoadingAssets).continue_to_state(AppState::Menu),
         )
@@ -92,9 +96,17 @@ fn main() {
         .add_plugin(TargetPlugin)
         // Systems
         .add_startup_system(setup)
+        .add_system(start_audio.in_schedule(OnExit(AppState::LoadingAssets)))
         .run();
 }
 
 fn setup(mut commands: Commands) {
     commands.spawn(Camera2dBundle::default());
+}
+
+fn start_audio(audio: Res<Audio>, assets: Res<GameAssets>) {
+    audio.play_with_settings(
+        assets.music.clone(),
+        PlaybackSettings::LOOP.with_volume(0.8),
+    );
 }

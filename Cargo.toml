@@ -5,6 +5,28 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+# default = [
+#     "bevy/animation",
+#     "bevy/bevy_asset",
+#     "bevy/bevy_scene",
+#     "bevy/bevy_winit",
+#     "bevy/bevy_core_pipeline",
+#     "bevy/bevy_pbr",
+#     "bevy/bevy_gltf",
+#     "bevy/bevy_render",
+#     "bevy/bevy_sprite",
+#     "bevy/bevy_text",
+#     "bevy/bevy_ui",
+#     "bevy/png",
+#     "bevy/hdr",
+#     "bevy/zstd",
+#     "bevy/x11",
+#     "bevy/ktx2",
+#     "bevy/filesystem_watcher",
+#     "bevy/tonemapping_luts"
+# ]
+
+
 [dependencies]
 bevy = { version = "0.10" }
 bevy_common_assets = { version = "0.6.0", features = ["json", "yaml"] }

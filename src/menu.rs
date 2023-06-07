@@ -14,14 +14,8 @@ impl Plugin for MenuPlugin {
 #[derive(Component)]
 struct MenuItem;
 
-fn setup_menu(
-    mut commands: Commands,
-    assets: Res<GameAssets>,
-    mut styles: ResMut<Styles>,
-    audio: Res<Audio>,
-) {
+fn setup_menu(mut commands: Commands, assets: Res<GameAssets>, mut styles: ResMut<Styles>) {
     styles.insert(assets.ui_style.clone());
-    audio.play_with_settings(assets.music.clone(), PlaybackSettings::LOOP);
     let ui = commands.spawn(MenuItem).id();
 
     commands.add(eml! {
